@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="hu"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
+<title>Ketogén Napló</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0f0f1a;
+    --surface: #1a1a2e;
+    --surface2: #22223b;
+    --accent: #7c3aed;
+    --accent2: #a855f7;
+    --green: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --text: #f1f0ff;
+    --text2: #a09dbf;
+    --border: #2d2b4e;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent2), #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .date-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* MACRO BARS */
+  .macro-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .macro-item {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+
+  .macro-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .macro-label {
+    font-size: 10px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  .macro-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+
+  .macro-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    padding: 4px;
+    margin: 12px 16px 0;
+    border-radius: var(--radius);
+    gap: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px 4px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* CONTENT */
+  .content {
+    padding: 16px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* MIC BUTTON */
+  .mic-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 8px 0 20px;
+  }
+
+  .mic-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mic-btn:active { transform: scale(0.95); }
+  .mic-btn.recording {
+    background: linear-gradient(135deg, var(--red), #f97316);
+    animation: pulse 1s infinite;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .mic-hint {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .transcript-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    min-height: 60px;
+    font-size: 14px;
+    color: var(--text);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* ANALYZE RESULT */
+  .analyze-result {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .analyze-result.show { display: block; }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .result-row:last-child { border-bottom: none; }
+
+  .result-label { color: var(--text2); }
+  .result-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+
+  .btn-add {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: var(--green);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s;
+  }
+
+  .btn-add:active { opacity: 0.8; }
+
+  /* MANUAL INPUT */
+  .manual-section {
+    margin-top: 16px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .input-field {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-field:focus { border-color: var(--accent); }
+  .input-field::placeholder { color: var(--text2); }
+
+  /* LOG ENTRIES */
+  .log-entry {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .log-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .log-info { flex: 1; min-width: 0; }
+
+  .log-name {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .log-meta {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  .log-kcal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  .log-del {
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  /* WEEKLY / MONTHLY */
+  .stat-card {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
+  .stat-day-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+
+  .stat-day-row:last-child { border-bottom: none; }
+
+  .stat-day-name {
+    font-size: 12px;
+    font-weight: 500;
+    width: 32px;
+    flex-shrink: 0;
+    color: var(--text2);
+  }
+
+  .stat-day-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .stat-day-bar {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .stat-day-kcal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    width: 55px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .big-stat {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .big-stat-item {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .big-stat-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  .big-stat-label {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* LEXICON */
+  .lex-item {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .lex-name { font-size: 14px; font-weight: 600; }
+  .lex-macros { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+  .lex-kcal {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+  .badge-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 12px;
+    z-index: 200;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    padding: 4px 0;
+    transition: color 0.2s;
+  }
+
+  .nav-item.active { color: var(--accent2); }
+  .nav-item span:first-child { font-size: 20px; }
+  .nav-item span:last-child { font-size: 10px; font-weight: 500; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text2);
+  }
+
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.5; }
+
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .thinking {
+    display: none;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--surface2);
+    border-radius: 10px;
+  }
+
+  .thinking.show { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo">⚡ Ketogén Napló</div>
+    <div class="date-display" id="dateDisplay">2026. 06. 28.</div>
+  </div>
+  <div class="macro-summary">
+    <div class="macro-item">
+      <div class="macro-val" id="hdrKcal">0</div>
+      <div class="macro-label">kcal</div>
+      <div class="macro-bar-wrap">
+        <div class="macro-bar" id="barKcal" style="width:0%;background:linear-gradient(90deg,#7c3aed,#a855f7)"></div>
+      </div>
+    </div>
+    <div class="macro-item">
+      <div class="macro-val" id="hdrP">0g</div>
+      <div class="macro-label">fehérje</div>
+      <div class="macro-bar-wrap">
+        <div class="macro-bar" id="barP" style="width:0%;background:#10b981"></div>
+      </div>
+    </div>
+    <div class="macro-item">
+      <div class="macro-val" id="hdrZS">0g</div>
+      <div class="macro-label">zsír</div>
+      <div class="macro-bar-wrap">
+        <div class="macro-bar" id="barZS" style="width:0%;background:#f59e0b"></div>
+      </div>
+    </div>
+    <div class="macro-item">
+      <div class="macro-val" id="hdrCH">0g</div>
+      <div class="macro-label">nettó CH</div>
+      <div class="macro-bar-wrap">
+        <div class="macro-bar" id="barCH" style="width:0%;background:#ef4444"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGES -->
+<div id="pageNaplo" class="content" style="display:block">
+  <!-- MIC -->
+  <div class="mic-section">
+    <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎙️</button>
+    <div class="mic-hint" id="micHint">Nyomj a mikronra és mondd be pl.:<br><em>"Tojás 150 gramm"</em></div>
+    <div class="transcript-box" id="transcriptBox">A bemondásod itt jelenik meg...</div>
+    <div class="thinking" id="thinkingBox">
+      <div class="spinner"></div> Claude elemzi a bemondást...
+    </div>
+    <div class="analyze-result" id="analyzeResult">
+      <div class="result-row"><span class="result-label">🥗 Élelmiszer</span><span class="result-val" id="resName">—</span></div>
+      <div class="result-row"><span class="result-label">⚖️ Mennyiség</span><span class="result-val" id="resGram">—</span></div>
+      <div class="result-row"><span class="result-label">🔥 Kalória</span><span class="result-val" id="resKcal">—</span></div>
+      <div class="result-row"><span class="result-label">💪 Fehérje</span><span class="result-val" id="resP">—</span></div>
+      <div class="result-row"><span class="result-label">🥑 Zsír</span><span class="result-val" id="resZS">—</span></div>
+      <div class="result-row"><span class="result-label">🌾 Nettó CH</span><span class="result-val" id="resCH">—</span></div>
+      <button class="btn-add" onclick="addEntry()">✅ Hozzáadás a naplóhoz</button>
+    </div>
+  </div>
+
+  <!-- MANUAL -->
+  <div class="manual-section">
+    <div class="section-title">Kézi bevitel</div>
+    <div class="input-row">
+      <input class="input-field" id="manualName" type="text" placeholder="Élelmiszer neve..." list="foodSuggest">
+      <input class="input-field" id="manualGram" type="number" placeholder="g">
+    </div>
+    <datalist id="foodSuggest"><option value="tojás"></option><option value="csirkemell"></option><option value="csirkecomb"></option><option value="sertéskaraj"></option><option value="marhahús"></option><option value="lazac"></option><option value="tonhal"></option><option value="vaj"></option><option value="olívaolaj"></option><option value="avokádó"></option><option value="sajt"></option><option value="cheddar sajt"></option><option value="mozzarella"></option><option value="tejszín"></option><option value="bacon"></option><option value="mandula"></option><option value="dió"></option><option value="brokkoli"></option><option value="karfiol"></option><option value="spenót"></option><option value="saláta"></option><option value="uborka"></option><option value="cukkini"></option><option value="paprika"></option><option value="olajbogyó"></option><option value="túró"></option><option value="görög joghurt"></option><option value="kolbász"></option><option value="sonka"></option><option value="makadámia"></option><option value="kókuszolaj"></option><option value="tőkehal"></option><option value="fekete kávé"></option><option value="zöldbab"></option><option value="fokhagyma"></option><option value="hagyma"></option><option value="vöröshagyma"></option><option value="gomba"></option><option value="csiperkegomba"></option><option value="tejföl"></option><option value="parmezán"></option><option value="sertészsír"></option><option value="csirkemáj"></option></datalist>
+    <button class="btn-add" onclick="manualAdd()" style="background:var(--accent)">➕ Hozzáadás</button>
+  </div>
+
+  <!-- TODAY LOG -->
+  <div style="margin-top:20px">
+    <div class="section-title">Mai napló</div>
+    <div id="todayLog"><div class="empty-state">
+      <div class="icon">🥗</div>
+      <p>Még nincs mai bejegyzés.<br>Használd a mikrofont vagy a kézi bevitelt!</p>
+    </div></div>
+  </div>
+</div>
+
+<div id="pageHeti" class="content" style="display:none">
+  <div class="section-title">Heti összesítő</div>
+  <div id="weeklyContent"></div>
+</div>
+
+<div id="pageHavi" class="content" style="display:none">
+  <div class="section-title">Havi statisztika</div>
+  <div id="monthlyContent"></div>
+</div>
+
+<div id="pageLexikon" class="content" style="display:none">
+  <div class="section-title">Élelmiszer-lexikon</div>
+  <div id="lexiconContent"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-item active" id="navNaplo" onclick="showPage('Naplo')">
+    <span>📋</span><span>Napló</span>
+  </button>
+  <button class="nav-item" id="navHeti" onclick="showPage('Heti')">
+    <span>📊</span><span>Heti</span>
+  </button>
+  <button class="nav-item" id="navHavi" onclick="showPage('Havi')">
+    <span>📅</span><span>Havi</span>
+  </button>
+  <button class="nav-item" id="navLexikon" onclick="showPage('Lexikon')">
+    <span>📚</span><span>Lexikon</span>
+  </button>
+</div>
+
+<div class="toast" id="toast" style="background: var(--red);">A böngésző nem támogatja a hangfelismerést!</div>
+
+<script>
+// =================== ALAP ADATOK ===================
+const TARGETS = { kcal: 1700, p: 120, zs: 200, ch: 30 };
+
+// Ketogén élelmiszer alap-adatbázis (100g-ra vetítve)
+let foodDB = {
+  "tojás": { kcal: 155, p: 13, zs: 11, ch: 1.1 },
+  "csirkemell": { kcal: 165, p: 31, zs: 3.6, ch: 0 },
+  "csirkecomb": { kcal: 209, p: 26, zs: 11, ch: 0 },
+  "sertéskaraj": { kcal: 242, p: 22, zs: 16, ch: 0 },
+  "marhahús": { kcal: 250, p: 26, zs: 17, ch: 0 },
+  "lazac": { kcal: 208, p: 20, zs: 13, ch: 0 },
+  "tonhal": { kcal: 132, p: 28, zs: 1, ch: 0 },
+  "vaj": { kcal: 717, p: 0.9, zs: 81, ch: 0.1 },
+  "olívaolaj": { kcal: 884, p: 0, zs: 100, ch: 0 },
+  "avokádó": { kcal: 160, p: 2, zs: 15, ch: 1.8 },
+  "sajt": { kcal: 402, p: 25, zs: 33, ch: 1.3 },
+  "cheddar sajt": { kcal: 402, p: 25, zs: 33, ch: 1.3 },
+  "mozzarella": { kcal: 280, p: 22, zs: 22, ch: 2.2 },
+  "tejszín": { kcal: 345, p: 2.1, zs: 37, ch: 2.8 },
+  "bacon": { kcal: 541, p: 37, zs: 42, ch: 1.4 },
+  "mandula": { kcal: 579, p: 21, zs: 50, ch: 3.5 },
+  "dió": { kcal: 654, p: 15, zs: 65, ch: 3.4 },
+  "brokkoli": { kcal: 34, p: 2.8, zs: 0.4, ch: 4 },
+  "karfiol": { kcal: 25, p: 2, zs: 0.3, ch: 3 },
+  "spenót": { kcal: 23, p: 2.9, zs: 0.4, ch: 1.4 },
+  "saláta": { kcal: 15, p: 1.4, zs: 0.2, ch: 1.5 },
+  "uborka": { kcal: 15, p: 0.7, zs: 0.1, ch: 2.2 },
+  "cukkini": { kcal: 17, p: 1.2, zs: 0.3, ch: 2.1 },
+  "paprika": { kcal: 31, p: 1, zs: 0.3, ch: 4.6 },
+  "olajbogyó": { kcal: 145, p: 1, zs: 15, ch: 3.8 },
+  "túró": { kcal: 98, p: 11, zs: 4.3, ch: 3.4 },
+  "görög joghurt": { kcal: 59, p: 10, zs: 0.4, ch: 3.6 },
+  "kolbász": { kcal: 301, p: 13, zs: 27, ch: 2 },
+  "sonka": { kcal: 145, p: 21, zs: 5, ch: 2.5 },
+  "makadámia": { kcal: 718, p: 8, zs: 76, ch: 1.6 },
+  "kókuszolaj": { kcal: 862, p: 0, zs: 100, ch: 0 },
+  "tőkehal": { kcal: 82, p: 18, zs: 0.7, ch: 0 },
+  "fekete kávé": { kcal: 2, p: 0.3, zs: 0, ch: 0 },
+  "zöldbab": { kcal: 31, p: 1.8, zs: 0.2, ch: 4.5 },
+  "fokhagyma": { kcal: 149, p: 6.4, zs: 0.5, ch: 26 },
+  "hagyma": { kcal: 40, p: 1.1, zs: 0.1, ch: 7.6 },
+  "vöröshagyma": { kcal: 40, p: 1.1, zs: 0.1, ch: 7.6 },
+  "gomba": { kcal: 22, p: 3.1, zs: 0.3, ch: 1.5 },
+  "csiperkegomba": { kcal: 22, p: 3.1, zs: 0.3, ch: 1.5 },
+  "tejföl": { kcal: 193, p: 2.9, zs: 20, ch: 3.4 },
+  "parmezán": { kcal: 431, p: 38, zs: 29, ch: 4 },
+  "sertészsír": { kcal: 902, p: 0, zs: 100, ch: 0 },
+  "csirkemáj": { kcal: 119, p: 17, zs: 4.8, ch: 0.9 },
+};
+
+// =================== APP STATE ===================
+let entries = JSON.parse(localStorage.getItem('keto_entries') || '[]');
+let pendingEntry = null;
+let recognition = null;
+let isRecording = false;
+
+// =================== INIT ===================
+document.addEventListener('DOMContentLoaded', () => {
+  updateDateDisplay();
+  updateHeader();
+  renderTodayLog();
+  updateFoodSuggest();
+  setInterval(updateDateDisplay, 60000);
+});
+
+function updateDateDisplay() {
+  const now = new Date();
+  const opts = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  document.getElementById('dateDisplay').textContent = now.toLocaleDateString('hu-HU', opts);
+}
+
+// =================== NAVIGATION ===================
+function showPage(page) {
+  ['Naplo','Heti','Havi','Lexikon'].forEach(p => {
+    document.getElementById('page'+p).style.display = 'none';
+    document.getElementById('nav'+p).classList.remove('active');
+  });
+  document.getElementById('page'+page).style.display = 'block';
+  document.getElementById('nav'+page).classList.add('active');
+
+  if (page === 'Heti') renderWeekly();
+  if (page === 'Havi') renderMonthly();
+  if (page === 'Lexikon') renderLexicon();
+}
+
+// =================== SPEECH RECOGNITION ===================
+function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    startRecording();
+  }
+}
+
+function startRecording() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('A böngésző nem támogatja a hangfelismerést!', 'error');
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = 'hu-HU';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micBtn').textContent = '⏹️';
+    document.getElementById('micHint').textContent = 'Figyellek... Mondd be pl.: "Csirkemell 200 gramm"';
+    document.getElementById('transcriptBox').textContent = '🎙️ Hallgatom...';
+    document.getElementById('analyzeResult').classList.remove('show');
+  };
+
+  recognition.onresult = (e) => {
+    let text = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      text += e.results[i][0].transcript;
+    }
+    document.getElementById('transcriptBox').textContent = text;
+  };
+
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micBtn').textContent = '🎙️';
+    document.getElementById('micHint').textContent = 'Nyomj a mikronra és mondd be pl.:\n"Tojás 150 gramm"';
+
+    const text = document.getElementById('transcriptBox').textContent;
+    if (text && text !== '🎙️ Hallgatom...') {
+      analyzeWithClaude(text);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('recording');
+    document.getElementById('micBtn').textContent = '🎙️';
+    if (e.error === 'no-speech') {
+      document.getElementById('transcriptBox').textContent = 'Nem hallottam semmit. Próbáld újra!';
+    } else {
+      document.getElementById('transcriptBox').textContent = 'Hiba: ' + e.error;
+    }
+  };
+
+  recognition.start();
+}
+
+function stopRecording() {
+  if (recognition) recognition.stop();
+}
+
+// =================== CLAUDE ANALYZE ===================
+async function analyzeWithClaude(text) {
+  document.getElementById('thinkingBox').classList.add('show');
+  document.getElementById('analyzeResult').classList.remove('show');
+
+  const foodList = Object.keys(foodDB).join(', ');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: `Te egy ketogén diéta asszisztens vagy. A felhasználó bemondásából azonosítsd az élelmiszert és a mennyiséget grammban.
+Ismert élelmiszerek adatbázisból: ${foodList}.
+Ha az élelmiszer nincs az adatbázisban, becsüld meg a tápértékeket a hasonló ételek alapján.
+Válaszolj CSAK JSON formátumban, semmi más szöveg:
+{"nev": "élelmiszer neve magyarul", "gram": szám, "kcal_100g": szám, "p_100g": szám, "zs_100g": szám, "ch_100g": szám, "uj_elem": true/false}
+Az uj_elem legyen true ha nem szerepel az adatbázisban.`,
+        messages: [{ role: 'user', content: `Elemezd ezt a bemondást: "${text}"` }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content[0].text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(raw);
+
+    document.getElementById('thinkingBox').classList.remove('show');
+
+    const gram = result.gram || 100;
+    const mult = gram / 100;
+    const kcal = Math.round(result.kcal_100g * mult);
+    const p = Math.round(result.p_100g * mult * 10) / 10;
+    const zs = Math.round(result.zs_100g * mult * 10) / 10;
+    const ch = Math.round(result.ch_100g * mult * 10) / 10;
+
+    document.getElementById('resName').textContent = result.nev;
+    document.getElementById('resGram').textContent = gram + ' g';
+    document.getElementById('resKcal').textContent = kcal + ' kcal';
+    document.getElementById('resP').textContent = p + ' g';
+    document.getElementById('resZS').textContent = zs + ' g';
+    document.getElementById('resCH').textContent = ch + ' g';
+    document.getElementById('analyzeResult').classList.add('show');
+
+    pendingEntry = {
+      id: Date.now(),
+      date: todayKey(),
+      time: new Date().toLocaleTimeString('hu-HU', {hour:'2-digit', minute:'2-digit'}),
+      name: result.nev,
+      gram,
+      kcal,
+      p,
+      zs,
+      ch
+    };
+
+    // Ha új élelmiszer, adjuk az adatbázishoz
+    if (result.uj_elem && !foodDB[result.nev.toLowerCase()]) {
+      foodDB[result.nev.toLowerCase()] = {
+        kcal: result.kcal_100g,
+        p: result.p_100g,
+        zs: result.zs_100g,
+        ch: result.ch_100g
+      };
+      saveFoodDB();
+      updateFoodSuggest();
+    }
+
+  } catch (err) {
+    document.getElementById('thinkingBox').classList.remove('show');
+    // Fallback: próbáljuk helyi adatbázisból
+    localParse(text);
+  }
+}
+
+function localParse(text) {
+  const lower = text.toLowerCase();
+  let found = null;
+  let gram = 100;
+
+  // Gramm keresés
+  const gramMatch = text.match(/(\d+)\s*(gramm|gram|g\b)/i);
+  if (gramMatch) gram = parseInt(gramMatch[1]);
+
+  // Élelmiszer keresés
+  for (const [name, data] of Object.entries(foodDB)) {
+    if (lower.includes(name)) {
+      found = { name, ...data };
+      break;
+    }
+  }
+
+  if (!found) {
+    document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
+    return;
+  }
+
+  const mult = gram / 100;
+  const kcal = Math.round(found.kcal * mult);
+  const p = Math.round(found.p * mult * 10) / 10;
+  const zs = Math.round(found.zs * mult * 10) / 10;
+  const ch = Math.round(found.ch * mult * 10) / 10;
+
+  document.getElementById('resName').textContent = found.name;
+  document.getElementById('resGram').textContent = gram + ' g';
+  document.getElementById('resKcal').textContent = kcal + ' kcal';
+  document.getElementById('resP').textContent = p + ' g';
+  document.getElementById('resZS').textContent = zs + ' g';
+  document.getElementById('resCH').textContent = ch + ' g';
+  document.getElementById('analyzeResult').classList.add('show');
+
+  pendingEntry = {
+    id: Date.now(),
+    date: todayKey(),
+    time: new Date().toLocaleTimeString('hu-HU', {hour:'2-digit', minute:'2-digit'}),
+    name: found.name,
+    gram, kcal, p, zs, ch
+  };
+}
+
+// =================== MANUAL ADD ===================
+function manualAdd() {
+  const name = document.getElementById('manualName').value.trim().toLowerCase();
+  const gram = parseFloat(document.getElementById('manualGram').value) || 100;
+
+  if (!name) { showToast('Add meg az élelmiszer nevét!'); return; }
+
+  const food = foodDB[name];
+  if (!food) {
+    showToast('Ismeretlen élelmiszer — próbálj más nevet!');
+    return;
+  }
+
+  const mult = gram / 100;
+  entries.push({
+    id: Date.now(),
+    date: todayKey(),
+    time: new Date().toLocaleTimeString('hu-HU', {hour:'2-digit', minute:'2-digit'}),
+    name: name,
+    gram,
+    kcal: Math.round(food.kcal * mult),
+    p: Math.round(food.p * mult * 10) / 10,
+    zs: Math.round(food.zs * mult * 10) / 10,
+    ch: Math.round(food.ch * mult * 10) / 10,
+  });
+  saveEntries();
+  document.getElementById('manualName').value = '';
+  document.getElementById('manualGram').value = '';
+  showToast('✅ Hozzáadva!');
+  renderTodayLog();
+  updateHeader();
+}
+
+// =================== ADD ENTRY ===================
+function addEntry() {
+  if (!pendingEntry) return;
+  entries.push(pendingEntry);
+  saveEntries();
+  pendingEntry = null;
+  document.getElementById('analyzeResult').classList.remove('show');
+  document.getElementById('transcriptBox').textContent = 'A bemondásod itt jelenik meg...';
+  showToast('✅ Naplóba mentve!');
+  renderTodayLog();
+  updateHeader();
+}
+
+// =================== DELETE ENTRY ===================
+function deleteEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  saveEntries();
+  renderTodayLog();
+  updateHeader();
+}
+
+// =================== RENDER TODAY ===================
+function renderTodayLog() {
+  const today = todayKey();
+  const todayEntries = entries.filter(e => e.date === today);
+  const container = document.getElementById('todayLog');
+
+  if (todayEntries.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="icon">🥗</div>
+      <p>Még nincs mai bejegyzés.<br>Használd a mikrofont vagy a kézi bevitelt!</p>
+    </div>`;
+    return;
+  }
+
+  const icons = { tojás:'🥚', csirke:'🍗', lazac:'🐟', sajt:'🧀', avokádó:'🥑',
+    bacon:'🥓', brokkoli:'🥦', saláta:'🥗', kávé:'☕', vaj:'🧈' };
+
+  container.innerHTML = todayEntries.map(e => {
+    let icon = '🍽️';
+    for (const [k,v] of Object.entries(icons)) {
+      if (e.name.includes(k)) { icon = v; break; }
+    }
+    return `<div class="log-entry">
+      <div class="log-icon">${icon}</div>
+      <div class="log-info">
+        <div class="log-name">${capitalize(e.name)}</div>
+        <div class="log-meta">${e.time} · ${e.gram}g · P:${e.p}g ZS:${e.zs}g CH:${e.ch}g</div>
+      </div>
+      <div class="log-kcal">${e.kcal} kcal</div>
+      <button class="log-del" onclick="deleteEntry(${e.id})">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+// =================== HEADER UPDATE ===================
+function updateHeader() {
+  const today = todayKey();
+  const todayEntries = entries.filter(e => e.date === today);
+  const totals = sum(todayEntries);
+
+  document.getElementById('hdrKcal').textContent = totals.kcal;
+  document.getElementById('hdrP').textContent = totals.p + 'g';
+  document.getElementById('hdrZS').textContent = totals.zs + 'g';
+  document.getElementById('hdrCH').textContent = totals.ch + 'g';
+
+  document.getElementById('barKcal').style.width = Math.min(100, totals.kcal / TARGETS.kcal * 100) + '%';
+  document.getElementById('barP').style.width = Math.min(100, totals.p / TARGETS.p * 100) + '%';
+  document.getElementById('barZS').style.width = Math.min(100, totals.zs / TARGETS.zs * 100) + '%';
+  document.getElementById('barCH').style.width = Math.min(100, totals.ch / TARGETS.ch * 100) + '%';
+}
+
+// =================== WEEKLY ===================
+function renderWeekly() {
+  const days = ['H','K','Sze','Cs','P','Szo','V'];
+  const now = new Date();
+  const dayOfWeek = (now.getDay() + 6) % 7;
+
+  let weekData = [];
+  let weekTotals = { kcal:0, p:0, zs:0, ch:0 };
+  let maxKcal = 0;
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const key = dateKey(d);
+    const dayEntries = entries.filter(e => e.date === key);
+    const totals = sum(dayEntries);
+    if (totals.kcal > maxKcal) maxKcal = totals.kcal;
+    weekData.push({ day: days[6 - i] || days[(6-i+7)%7], ...totals, key });
+    weekTotals.kcal += totals.kcal;
+    weekTotals.p += totals.p;
+    weekTotals.zs += totals.zs;
+    weekTotals.ch += totals.ch;
+  }
+
+  // Last 7 days properly
+  weekData = [];
+  weekTotals = { kcal:0, p:0, zs:0, ch:0 };
+  maxKcal = 0;
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const key = dateKey(d);
+    const dayEntries = entries.filter(e => e.date === key);
+    const totals = sum(dayEntries);
+    if (totals.kcal > maxKcal) maxKcal = totals.kcal;
+    const dayNames = ['V','H','K','Sze','Cs','P','Szo'];
+    weekData.push({ day: dayNames[d.getDay()], ...totals, key, isToday: i===0 });
+    weekTotals.kcal += totals.kcal;
+    weekTotals.p += totals.p;
+    weekTotals.zs += totals.zs;
+    weekTotals.ch += totals.ch;
+  }
+
+  if (maxKcal === 0) maxKcal = TARGETS.kcal;
+
+  const avgKcal = Math.round(weekTotals.kcal / 7);
+  const evaluation = getWeeklyEval(avgKcal, Math.round(weekTotals.ch / 7));
+
+  document.getElementById('weeklyContent').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-title">Kalória – elmúlt 7 nap</div>
+      ${weekData.map(d => `
+        <div class="stat-day-row">
+          <div class="stat-day-name" style="color:${d.isToday ? 'var(--accent2)' : ''}">${d.day}</div>
+          <div class="stat-day-bar-wrap">
+            <div class="stat-day-bar" style="width:${Math.round(d.kcal/maxKcal*100)}%"></div>
+          </div>
+          <div class="stat-day-kcal">${d.kcal} kcal</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">Heti összesítő</div>
+      <div class="big-stat">
+        <div class="big-stat-item">
+          <div class="big-stat-val">${weekTotals.kcal}</div>
+          <div class="big-stat-label">össz. kcal</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${avgKcal}</div>
+          <div class="big-stat-label">átlag kcal/nap</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${Math.round(weekTotals.p/7)}g</div>
+          <div class="big-stat-label">átlag fehérje</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${Math.round(weekTotals.ch/7)}g</div>
+          <div class="big-stat-label">átlag nettó CH</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card" style="border-left: 3px solid ${evaluation.color}">
+      <div class="stat-card-title">Értékelés</div>
+      <div style="font-size:14px;line-height:1.6">${evaluation.text}</div>
+    </div>
+  `;
+}
+
+function getWeeklyEval(avgKcal, avgCH) {
+  let text = '';
+  let color = 'var(--green)';
+
+  if (avgCH <= 20) text += '✅ Kiváló! Nettó szénhidrát beviteled nagyon alacsony — valószínűleg ketózisban vagy. ';
+  else if (avgCH <= 30) text += '✅ Jó! Szénhidrát beviteled a ketogén tartományon belül van. ';
+  else { text += '⚠️ Figyelem! Napi átlag szénhidrátod meghaladja a 30g-os célt. Csökkentsd a CH-tartalmú ételeket. '; color = 'var(--orange)'; }
+
+  if (avgKcal < TARGETS.kcal * 0.85) text += '📉 Kalória beviteled az ajánlott alatt van — figyelj a megfelelő táplálkozásra.';
+  else if (avgKcal > TARGETS.kcal * 1.1) { text += '📈 Kalória beviteled kissé meghaladja a célt.'; color = 'var(--orange)'; }
+  else text += '🎯 Kalória beviteled a célérték közelében van, szép munka!';
+
+  return { text, color };
+}
+
+// =================== MONTHLY ===================
+function renderMonthly() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let monthTotal = { kcal:0, p:0, zs:0, ch:0 };
+  let daysLogged = 0;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const key = dateKey(date);
+    const dayEntries = entries.filter(e => e.date === key);
+    if (dayEntries.length > 0) {
+      const t = sum(dayEntries);
+      monthTotal.kcal += t.kcal;
+      monthTotal.p += t.p;
+      monthTotal.zs += t.zs;
+      monthTotal.ch += t.ch;
+      daysLogged++;
+    }
+  }
+
+  const monthNames = ['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
+
+  document.getElementById('monthlyContent').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-card-title">${monthNames[month]} ${year}</div>
+      <div class="big-stat">
+        <div class="big-stat-item">
+          <div class="big-stat-val">${daysLogged}</div>
+          <div class="big-stat-label">naplózott nap</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${daysLogged > 0 ? Math.round(monthTotal.kcal/daysLogged) : 0}</div>
+          <div class="big-stat-label">átlag kcal/nap</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${daysLogged > 0 ? Math.round(monthTotal.p/daysLogged) : 0}g</div>
+          <div class="big-stat-label">átlag fehérje</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${daysLogged > 0 ? Math.round(monthTotal.ch/daysLogged) : 0}g</div>
+          <div class="big-stat-label">átlag nettó CH</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">Havi összesítő</div>
+      <div class="big-stat">
+        <div class="big-stat-item">
+          <div class="big-stat-val">${monthTotal.kcal}</div>
+          <div class="big-stat-label">össz. kcal</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${Math.round(monthTotal.p)}g</div>
+          <div class="big-stat-label">össz. fehérje</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${Math.round(monthTotal.zs)}g</div>
+          <div class="big-stat-label">össz. zsír</div>
+        </div>
+        <div class="big-stat-item">
+          <div class="big-stat-val">${Math.round(monthTotal.ch)}g</div>
+          <div class="big-stat-label">össz. CH</div>
+        </div>
+      </div>
+    </div>
+    ${daysLogged === 0 ? `<div class="empty-state"><div class="icon">📅</div><p>Még nincs havi adat.<br>Kezdj el naplózni!</p></div>` : ''}
+  `;
+}
+
+// =================== LEXICON ===================
+function renderLexicon() {
+  const usedFoods = {};
+  entries.forEach(e => {
+    if (!usedFoods[e.name]) usedFoods[e.name] = 0;
+    usedFoods[e.name]++;
+  });
+
+  const sorted = Object.entries(foodDB).sort((a, b) => {
+    const ua = usedFoods[a[0]] || 0;
+    const ub = usedFoods[b[0]] || 0;
+    return ub - ua;
+  });
+
+  document.getElementById('lexiconContent').innerHTML = sorted.map(([name, data]) => {
+    const uses = usedFoods[name] || 0;
+    const badge = uses > 5 ? `<span class="badge badge-green">Kedvenc</span>` :
+                  uses > 0 ? `<span class="badge badge-orange">${uses}×</span>` : '';
+    return `<div class="lex-item">
+      <div>
+        <div class="lex-name">${capitalize(name)} ${badge}</div>
+        <div class="lex-macros">P: ${data.p}g · ZS: ${data.zs}g · CH: ${data.ch}g / 100g</div>
+      </div>
+      <div class="lex-kcal">${data.kcal} kcal</div>
+    </div>`;
+  }).join('');
+}
+
+// =================== HELPERS ===================
+function todayKey() { return dateKey(new Date()); }
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function sum(arr) {
+  return arr.reduce((acc, e) => ({
+    kcal: acc.kcal + (e.kcal||0),
+    p: Math.round((acc.p + (e.p||0)) * 10) / 10,
+    zs: Math.round((acc.zs + (e.zs||0)) * 10) / 10,
+    ch: Math.round((acc.ch + (e.ch||0)) * 10) / 10,
+  }), { kcal:0, p:0, zs:0, ch:0 });
+}
+
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+function saveEntries() { localStorage.setItem('keto_entries', JSON.stringify(entries)); }
+function saveFoodDB() { localStorage.setItem('keto_fooddb', JSON.stringify(foodDB)); }
+
+function updateFoodSuggest() {
+  const dl = document.getElementById('foodSuggest');
+  dl.innerHTML = Object.keys(foodDB).map(n => `<option value="${n}">`).join('');
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type === 'error' ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Load saved food DB if exists
+const savedDB = localStorage.getItem('keto_fooddb');
+if (savedDB) {
+  try { Object.assign(foodDB, JSON.parse(savedDB)); } catch(e) {}
+}
+</script>
+
+
+</body></html>
