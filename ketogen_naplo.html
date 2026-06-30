@@ -579,22 +579,7 @@ function normalize(s) {
     .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u');
 }
 
-function localParse(text) {
-  const lower = text.toLowerCase();
-  const normLower = normalize(lower);
-  let gram = 100;
-  const gm = text.match(/(\d+)\s*(gramm|gram|dkg|g\b)/i);
-  if (gm) {
-    gram = parseInt(gm[1]);
-    if (gm[2].toLowerCase() === 'dkg') gram *= 10;
-  }
 
-  for (const [name, data] of Object.entries(foodDB)) {
-    if (lower.includes(name)) {
-      showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
-      return;
-    }
-  }
 
   for (const [name, data] of Object.entries(foodDB)) {
     if (normLower.includes(normalize(name))) {
@@ -623,7 +608,14 @@ function localParse(text) {
   document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
 }
 }
-  
+  window.addEntry = function() {
+  if (!pendingEntry) return;
+  push(entriesRef, { ...pendingEntry, ts: Date.now() });
+  pendingEntry = null;
+  document.getElementById('analyzeResult').classList.remove('show');
+  document.getElementById('transcriptBox').textContent = 'A bemondásod itt jelenik meg...';
+  showToast('✅ Felhőbe mentve!');
+}
 }
 // === GOOGLE SHEETS EXPORT ===
 window.exportToSheets = async function() {
