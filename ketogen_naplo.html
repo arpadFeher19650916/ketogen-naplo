@@ -197,7 +197,6 @@
   </div>
   <div id="lexiconContent"></div>
 </div>
-
 <div class="bottom-nav">
   <button class="nav-item active" id="navNaplo" onclick="showPage('Naplo')"><span>📋</span><span>Napló</span></button>
   <button class="nav-item" id="navHeti" onclick="showPage('Heti')"><span>📊</span><span>Heti</span></button>
@@ -411,7 +410,7 @@ let foodDB = {
   "köles (főtt)": { kcal: 119, p: 3.5, zs: 1, ch: 23, pref: 3, warn: "⚠️ Magas CH!" },
   "kókusztejszín": { kcal: 230, p: 2.3, zs: 24, ch: 3, pref: 3, warn: null },
   "kókusztej": { kcal: 154, p: 1.5, zs: 15, ch: 3.4, pref: 3, warn: null },
-  "kókuszjoghurt (cukormentes)": { kcal: 130, p: 1.5, zs: 12, ch: 3, pref: 3, warn: "Ellenőrizd: hozzáadott cukor nélküli"},
+  "kókuszjoghurt (cukormentes)": { kcal: 130, p: 1.5, zs: 12, ch: 3, pref: 3, warn: "Ellenőrizd: hozzáadott cukor nélküli?" },
   "mandulatej (cukormentes)": { kcal: 17, p: 0.6, zs: 1.5, ch: 0.3, pref: 3, warn: null },
   "kókuszvaj (kókuszkrém)": { kcal: 660, p: 7, zs: 65, ch: 6, pref: 3, warn: null },
   "élesztőpehely (táplálkozási élesztő)": { kcal: 325, p: 45, zs: 5, ch: 16, pref: 3, warn: "Sajtos ízhatás, mértékkel — figyeld a CH-t." },
@@ -468,7 +467,7 @@ let foodDB = {
   "zsálya": { kcal: 315, p: 11, zs: 13, ch: 27, pref: 3, warn: "Csak ízesítőként, csipetnyi mennyiségben." },
   "koriander zöldje": { kcal: 23, p: 2.1, zs: 0.5, ch: 1.7, pref: 3, warn: null },
   "borsikafű": { kcal: 274, p: 13, zs: 7, ch: 31, pref: 3, warn: "Csak ízesítőként, csipetnyi mennyiségben." },
-  "babérlevél": { kcal: 313, p: 7.6, zs: 8.4, ch: 49, pref: 3, warn: "Csak főzéshez, nem fogyasztandó, elhanyagolható CH-hatás." },
+"babérlevél": { kcal: 313, p: 7.6, zs: 8.4, ch: 49, pref: 3, warn: "Csak főzéshez, nem fogyasztandó, elhanyagolható CH-hatás." },
   "lestyán": { kcal: 25, p: 2, zs: 0.6, ch: 3, pref: 3, warn: null },
   "só": { kcal: 0, p: 0, zs: 0, ch: 0, pref: 3, warn: null },
   "bors": { kcal: 251, p: 10, zs: 3.3, ch: 38, pref: 3, warn: "Csak csipetnyi mennyiségben befolyásolja a CH-t." },
@@ -491,7 +490,23 @@ let foodDB = {
   "áfonya": { kcal: 57, p: 0.7, zs: 0.3, ch: 12, pref: 3, warn: "Magasabb CH, csak kis mennyiségben!" },
   "citrom": { kcal: 29, p: 1.1, zs: 0.3, ch: 3, pref: 3, warn: null },
   "lime": { kcal: 30, p: 0.7, zs: 0.2, ch: 3, pref: 3, warn: null },
-document.getElementById('syncBadge').textContent = '📴 Offline';
+};
+
+// Firebase
+const entriesRef = ref(db, 'entries');
+const foodRef = ref(db, 'foodDB');
+
+document.getElementById('syncBadge').textContent = '☁️ Online';
+
+onValue(entriesRef, (snapshot) => {
+  entries = [];
+  snapshot.forEach((child) => {
+    entries.push({ ...child.val(), firebaseKey: child.key });
+  });
+  renderTodayLog();
+  updateHeader();
+}, () => {
+  document.getElementById('syncBadge').textContent = '📴 Offline';
   document.getElementById('syncBadge').classList.add('offline');
 });
 
@@ -525,98 +540,7 @@ window.handleGoogleAuth = function() {
   });
   client.requestAccessToken();
 }
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
-  for (let i=0;i<=m;i++) dp[i][0]=i;
-  for (let j=0;j<=n;j++) dp[0][j]=j;
-  for (let i=1;i<=m;i++)
-    for (let j=1;j<=n;j++)
-      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]
-        : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
-  return dp[m][n];
-}
 
-function normalize(s) {
-  return s.toLowerCase()
-    .replace(/[áàâ]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
-    .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u');
-}
-
-
-
-  const words = normLower.replace(/\d+\s*(gramm|gram|dkg|g)\b/gi,'').split(/\s+/).filter(w=>w.length>2);
-  let best = null, bestDist = 3;
-  for (const [name, data] of Object.entries(foodDB)) {
-    const nameParts = normalize(name).split(/\s+/);
-    for (const part of nameParts) {
-      for (const w of words) {
-        const d = levenshtein(w, part);
-        if (d < bestDist) { bestDist = d; best = name; }
-      }
-    }
-  }
-  if (best) {
-    const data = foodDB[best];
-    showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
-    return;
-  }
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
-  for (let i=0;i<=m;i++) dp[i][0]=i;
-  for (let j=0;j<=n;j++) dp[0][j]=j;
-  for (let i=1;i<=m;i++)
-    for (let j=1;j<=n;j++)
-      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]
-        : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
-  return dp[m][n];
-}
-
-function normalize(s) {
-  return s.toLowerCase()
-    .replace(/[áàâ]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
-    .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u');
-}
-
-
-
-  for (const [name, data] of Object.entries(foodDB)) {
-    if (normLower.includes(normalize(name))) {
-      showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
-      return;
-    }
-  }
-
-  const words = normLower.replace(/\d+\s*(gramm|gram|dkg|g)\b/gi,'').split(/\s+/).filter(w=>w.length>2);
-  let best = null, bestDist = 3;
-  for (const [name, data] of Object.entries(foodDB)) {
-    const nameParts = normalize(name).split(/\s+/);
-    for (const part of nameParts) {
-      for (const w of words) {
-        const d = levenshtein(w, part);
-        if (d < bestDist) { bestDist = d; best = name; }
-      }
-    }
-  }
-  if (best) {
-    const data = foodDB[best];
-    showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
-    return;
-  }
-
-  document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
-}
-}
-  window.addEntry = function() {
-  if (!pendingEntry) return;
-  push(entriesRef, { ...pendingEntry, ts: Date.now() });
-  pendingEntry = null;
-  document.getElementById('analyzeResult').classList.remove('show');
-  document.getElementById('transcriptBox').textContent = 'A bemondásod itt jelenik meg...';
-  showToast('✅ Felhőbe mentve!');
-}
-}
 // === GOOGLE SHEETS EXPORT ===
 window.exportToSheets = async function() {
   if (!googleAccessToken) {
@@ -628,7 +552,6 @@ window.exportToSheets = async function() {
   try {
     const now = new Date();
     const weekData = getWeekData();
-    // Táblázat létrehozása
     const createRes = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${googleAccessToken}`, 'Content-Type': 'application/json' },
@@ -636,7 +559,6 @@ window.exportToSheets = async function() {
     });
     const sheet = await createRes.json();
     const spreadsheetId = sheet.spreadsheetId;
-    // Adatok feltöltése
     const values = [
       ['Nap', 'Kcal (tény)', 'Kcal (terv)', 'Eltérés %', 'Fehérje (g)', 'Zsír (g)', 'Nettó CH (g)', 'Minősítés'],
       ...weekData.map(d => {
@@ -672,7 +594,6 @@ window.exportToDocs = async function() {
     const weekData = getWeekData();
     const avgKcal = Math.round(weekData.reduce((a,d)=>a+d.kcal,0)/7);
     const avgCH = Math.round(weekData.reduce((a,d)=>a+d.ch,0)/7);
-    let evalText = avgCH <= 20 ? '✅ Kiváló! Ketózis valószínűleg fennáll.' : avgCH <= 30 ? '✅ Jó! Szénhidrát a ketogén tartományon belül.' : '⚠️ Szénhidrát meghaladja a 30g célt!';
     evalText += avgKcal > TARGETS.kcal * 1.1 ? ' Kalória a cél felett.' : avgKcal < TARGETS.kcal * 0.85 ? ' Kalória a cél alatt.' : ' Kalória a célérték közelében.';
     const createRes = await fetch('https://docs.googleapis.com/v1/documents', {
       method: 'POST',
@@ -845,8 +766,27 @@ function showResult(name, gram, kcal100, p100, zs100, ch100, warn) {
   };
 }
 
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for (let i=0;i<=m;i++) dp[i][0]=i;
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++)
+    for (let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]
+        : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/[áàâ]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
+    .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u');
+}
+
 function localParse(text) {
   const lower = text.toLowerCase();
+  const normLower = normalize(lower);
   let gram = 100;
   const gm = text.match(/(\d+)\s*(gramm|gram|dkg|g\b)/i);
   if (gm) {
@@ -859,13 +799,35 @@ function localParse(text) {
       return;
     }
   }
+
+  for (const [name, data] of Object.entries(foodDB)) {
+    if (normLower.includes(normalize(name))) {
+      showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
+      return;
+    }
+  }
+
+  const words = normLower.replace(/\d+\s*(gramm|gram|dkg|g)\b/gi,'').split(/\s+/).filter(w=>w.length>2);
+  let best = null, bestDist = 3;
+  for (const [name, data] of Object.entries(foodDB)) {
+    const nameParts = normalize(name).split(/\s+/);
+    for (const part of nameParts) {
+      for (const w of words) {
+        const d = levenshtein(w, part);
+        if (d < bestDist) { bestDist = d; best = name; }
+      }
+    }
+  }
+  if (best) {
+    const data = foodDB[best];
+    showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
+    return;
+  }
+
   document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
 }
 
 window.addEntry = function() {
-  if (!pendingEntry) return;
-  push(entriesRef, { ...pendingEntry, ts: Date.now() });
-  window.addEntry = function() {
   if (!pendingEntry) return;
   push(entriesRef, { ...pendingEntry, ts: Date.now() });
   pendingEntry = null;
