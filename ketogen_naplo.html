@@ -525,7 +525,106 @@ window.handleGoogleAuth = function() {
   });
   client.requestAccessToken();
 }
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for (let i=0;i<=m;i++) dp[i][0]=i;
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++)
+    for (let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]
+        : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
 
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/[áàâ]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
+    .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u');
+}
+
+
+
+  const words = normLower.replace(/\d+\s*(gramm|gram|dkg|g)\b/gi,'').split(/\s+/).filter(w=>w.length>2);
+  let best = null, bestDist = 3;
+  for (const [name, data] of Object.entries(foodDB)) {
+    const nameParts = normalize(name).split(/\s+/);
+    for (const part of nameParts) {
+      for (const w of words) {
+        const d = levenshtein(w, part);
+        if (d < bestDist) { bestDist = d; best = name; }
+      }
+    }
+  }
+  if (best) {
+    const data = foodDB[best];
+    showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
+    return;
+  }
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for (let i=0;i<=m;i++) dp[i][0]=i;
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++)
+    for (let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1]
+        : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function normalize(s) {
+  return s.toLowerCase()
+    .replace(/[áàâ]/g,'a').replace(/[éèê]/g,'e').replace(/[íìî]/g,'i')
+    .replace(/[óòôö]/g,'o').replace(/[úùûü]/g,'u');
+}
+
+function localParse(text) {
+  const lower = text.toLowerCase();
+  const normLower = normalize(lower);
+  let gram = 100;
+  const gm = text.match(/(\d+)\s*(gramm|gram|dkg|g\b)/i);
+  if (gm) {
+    gram = parseInt(gm[1]);
+    if (gm[2].toLowerCase() === 'dkg') gram *= 10;
+  }
+
+  for (const [name, data] of Object.entries(foodDB)) {
+    if (lower.includes(name)) {
+      showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
+      return;
+    }
+  }
+
+  for (const [name, data] of Object.entries(foodDB)) {
+    if (normLower.includes(normalize(name))) {
+      showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
+      return;
+    }
+  }
+
+  const words = normLower.replace(/\d+\s*(gramm|gram|dkg|g)\b/gi,'').split(/\s+/).filter(w=>w.length>2);
+  let best = null, bestDist = 3;
+  for (const [name, data] of Object.entries(foodDB)) {
+    const nameParts = normalize(name).split(/\s+/);
+    for (const part of nameParts) {
+      for (const w of words) {
+        const d = levenshtein(w, part);
+        if (d < bestDist) { bestDist = d; best = name; }
+      }
+    }
+  }
+  if (best) {
+    const data = foodDB[best];
+    showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
+    return;
+  }
+
+  document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
+}
+}
+  
+}
 // === GOOGLE SHEETS EXPORT ===
 window.exportToSheets = async function() {
   if (!googleAccessToken) {
