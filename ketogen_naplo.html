@@ -59,7 +59,6 @@
   .log-meta{font-size:12px;color:var(--text2);margin-top:2px;}
   .log-kcal{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;flex-shrink:0;}
   .log-del{background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0;}
-  /* Színkódolás */
   .color-green{color:var(--green)!important;}
   .color-blue{color:var(--blue)!important;}
   .color-red{color:var(--red)!important;}
@@ -232,19 +231,16 @@ let pendingEntry = null;
 let recognition = null;
 let isRecording = false;
 
-// === ÉLELMISZER ADATBÁZIS ===
-// Preferencia: 1=Mangalica, 2=Hal, 3=Egyéb
-// Figyelmeztetések: laktoz, gluten, majas (max heti 1x)
 let foodDB = {
   "mangalica kolozsvári": { kcal: 300, p: 17, zs: 26, ch: 0, pref: 1, warn: null },
   "mangalica tarja": { kcal: 280, p: 18, zs: 23, ch: 0, pref: 1, warn: null },
   "mangalica oldalas": { kcal: 320, p: 16, zs: 28, ch: 0, pref: 1, warn: null },
   "mangalica sonka": { kcal: 220, p: 22, zs: 15, ch: 0, pref: 1, warn: null },
-  "mangalica szalonna": { kcal: 518, p: 9, zs: 53, ch: 0, pref: 1, warn: "Nagyon energiasűrű! Max 50-70g/étkezés." },
-  "mangalica kolbász": { kcal: 301, p: 13, zs: 27, ch: 2, pref: 1, warn: "Ellenőrizd: gluténmentes, laktózmentes?" },
-  "mangalica császár": { kcal: 400, p: 12, zs: 38, ch: 0, pref: 1, warn: "Nagyon zsíros - mérj pontosan!" },
-  "sertéstepertő": { kcal: 600, p: 38, zs: 50, ch: 0, pref: 3, warn: "Nagyon energiasűrű! Max 40-50g/alkalom." },
-  "libatepertő": { kcal: 550, p: 30, zs: 47, ch: 0, pref: 3, warn: "Nagyon energiasűrű! Max 40-50g/alkalom." },
+  "mangalica szalonna": { kcal: 518, p: 9, zs: 53, ch: 0, pref: 1, warn: "Nagyon energiasuru! Max 50-70g/etkezes." },
+  "mangalica kolbász": { kcal: 301, p: 13, zs: 27, ch: 2, pref: 1, warn: "Ellenorizd: glutenmentes, laktozmentes?" },
+  "mangalica császár": { kcal: 400, p: 12, zs: 38, ch: 0, pref: 1, warn: "Nagyon zsiros - merj pontosan!" },
+  "sertéstepertő": { kcal: 600, p: 38, zs: 50, ch: 0, pref: 3, warn: "Nagyon energiasuru! Max 40-50g/alkalom." },
+  "libatepertő": { kcal: 550, p: 30, zs: 47, ch: 0, pref: 3, warn: "Nagyon energiasuru! Max 40-50g/alkalom." },
   "sertés szűzpecsenye": { kcal: 120, p: 21, zs: 3.5, ch: 0, pref: 3, warn: null },
   "heck": { kcal: 82, p: 17, zs: 1.2, ch: 0, pref: 2, warn: null },
   "marha szegy": { kcal: 250, p: 18, zs: 19, ch: 0, pref: 3, warn: null },
@@ -271,33 +267,33 @@ let foodDB = {
   "bárány comb": { kcal: 180, p: 18, zs: 12, ch: 0, pref: 3, warn: null },
   "bárány csülök": { kcal: 200, p: 18, zs: 14, ch: 0, pref: 3, warn: null },
   "bárány borda": { kcal: 280, p: 16, zs: 24, ch: 0, pref: 3, warn: null },
-  "virsli": { kcal: 280, p: 12, zs: 25, ch: 1.5, pref: 3, warn: "Címkét ellenőrizd: gluténmentes, TEJMENTES? (Wiesbauer)" },
-  "debreceni": { kcal: 330, p: 15, zs: 29, ch: 1, pref: 3, warn: "Címkét ellenőrizd: gluténmentes, TEJMENTES? (Nádudvari)" },
+  "virsli": { kcal: 280, p: 12, zs: 25, ch: 1.5, pref: 3, warn: "Cimket ellenorizd: glutenmentes, TEJMENTES? (Wiesbauer)" },
+  "debreceni": { kcal: 330, p: 15, zs: 29, ch: 1, pref: 3, warn: "Cimket ellenorizd: glutenmentes, TEJMENTES? (Nadudvari)" },
   "mungóbab-csíra": { kcal: 30, p: 3, zs: 0.2, ch: 4, pref: 3, warn: null },
   "lóherecsíra": { kcal: 23, p: 4, zs: 0.7, ch: 0.2, pref: 3, warn: null },
   "retekcsíra": { kcal: 43, p: 3.8, zs: 2.5, ch: 2, pref: 3, warn: null },
-  "napraforgó étolaj": { kcal: 884, p: 0, zs: 100, ch: 0, pref: 3, warn: "Omega-6-dús — olíva/kókusz előnyben!" },
+  "napraforgó étolaj": { kcal: 884, p: 0, zs: 100, ch: 0, pref: 3, warn: "Omega-6-dus - oliva/kokusz elonyben!" },
   "repce étolaj": { kcal: 884, p: 0, zs: 100, ch: 0, pref: 3, warn: null },
-  "majonéz": { kcal: 680, p: 1, zs: 75, ch: 0.6, pref: 3, warn: "Cukormentes, gluténmentes változatot válassz!" },
-  "hajdina puffasztott szelet": { kcal: 380, p: 12, zs: 3, ch: 72, pref: 3, warn: "NEM KETO! 1 szelet (~10g) ≈ 7g CH — a napi keret negyede!" },
+  "majonéz": { kcal: 680, p: 1, zs: 75, ch: 0.6, pref: 3, warn: "Cukormentes, glutenmentes valtozatot valassz!" },
+  "hajdina puffasztott szelet": { kcal: 380, p: 12, zs: 3, ch: 72, pref: 3, warn: "NEM KETO! 1 szelet (~10g) kb 7g CH - a napi keret negyede!" },
   "hajdinamag": { kcal: 343, p: 13.3, zs: 3.4, ch: 62, pref: 3, warn: "NEM KETO! Nagyon magas CH!" },
-  "zab": { kcal: 379, p: 13.2, zs: 6.5, ch: 56, pref: 3, warn: "NEM KETO! Magas CH + csak tanúsított gluténmentes!" },
-  "puffasztott zab": { kcal: 390, p: 13, zs: 7, ch: 60, pref: 3, warn: "NEM KETO! Magas CH + csak tanúsított gluténmentes!" },
+  "zab": { kcal: 379, p: 13.2, zs: 6.5, ch: 56, pref: 3, warn: "NEM KETO! Magas CH + csak tanusitott glutenmentes!" },
+  "puffasztott zab": { kcal: 390, p: 13, zs: 7, ch: 60, pref: 3, warn: "NEM KETO! Magas CH + csak tanusitott glutenmentes!" },
   "quinoa": { kcal: 368, p: 14, zs: 6, ch: 57, pref: 3, warn: "NEM KETO! Nagyon magas CH!" },
-  "meggy": { kcal: 50, p: 1, zs: 0.3, ch: 11, pref: 3, warn: "Gyümölcs — csak kis adag (max 50-100g) fér a CH-keretbe!" },
+  "meggy": { kcal: 50, p: 1, zs: 0.3, ch: 11, pref: 3, warn: "Gyumolcs - csak kis adag (max 50-100g) fer a CH-keretbe!" },
   "mangalica zsír": { kcal: 902, p: 0, zs: 100, ch: 0, pref: 1, warn: null },
   "sertés tarja": { kcal: 242, p: 22, zs: 16, ch: 0, pref: 1, warn: null },
   "sertés karaj": { kcal: 242, p: 22, zs: 16, ch: 0, pref: 1, warn: null },
   "makréla": { kcal: 205, p: 19, zs: 14, ch: 0, pref: 2, warn: null },
   "füstölt makréla": { kcal: 220, p: 20, zs: 15, ch: 0, pref: 2, warn: null },
   "szardínia": { kcal: 208, p: 25, zs: 11, ch: 0, pref: 2, warn: null },
-  "hering": { kcal: 158, p: 18, zs: 9, ch: 0, pref: 2, warn: "Marináltnál ellenőrizd: cukros pác?" },
+  "hering": { kcal: 158, p: 18, zs: 9, ch: 0, pref: 2, warn: "Marinaltnal ellenorizd: cukros pac?" },
   "pisztráng": { kcal: 148, p: 20, zs: 7, ch: 0, pref: 2, warn: null },
   "tonhal": { kcal: 132, p: 28, zs: 1, ch: 0, pref: 2, warn: null },
   "tőkehal": { kcal: 82, p: 18, zs: 0.7, ch: 0, pref: 2, warn: null },
   "garnéla": { kcal: 99, p: 18, zs: 2, ch: 0, pref: 2, warn: null },
-  "csirkemáj": { kcal: 119, p: 17, zs: 4.8, ch: 0.9, pref: 3, warn: "⚠️ Max heti 1x! A-vitamin túladagolás kockázata." },
-  "csirkemáj krém": { kcal: 200, p: 12, zs: 16, ch: 2, pref: 3, warn: "⚠️ Max heti 1x! Ellenőrizd: laktóz/glutén/cukor?" },
+  "csirkemáj": { kcal: 119, p: 17, zs: 4.8, ch: 0.9, pref: 3, warn: "Max heti 1x! A-vitamin tuladagolas kockazata." },
+  "csirkemáj krém": { kcal: 200, p: 12, zs: 16, ch: 2, pref: 3, warn: "Max heti 1x! Ellenorizd: laktoz/gluten/cukor?" },
   "kacsazsír": { kcal: 900, p: 0, zs: 100, ch: 0, pref: 3, warn: null },
   "tojás": { kcal: 155, p: 13, zs: 11, ch: 1.1, pref: 3, warn: null },
   "brokkoli": { kcal: 34, p: 2.8, zs: 0.4, ch: 4, pref: 3, warn: null },
@@ -317,36 +313,32 @@ let foodDB = {
   "mandula": { kcal: 579, p: 21, zs: 50, ch: 3.5, pref: 3, warn: null },
   "dió": { kcal: 654, p: 15, zs: 65, ch: 3.4, pref: 3, warn: null },
   "makadámia": { kcal: 718, p: 8, zs: 76, ch: 1.6, pref: 3, warn: null },
-  "kókuszkrém": { kcal: 330, p: 3, zs: 34, ch: 6, pref: 3, warn: "Cukormentes változatot válassz!" },
-  "majonéz": { kcal: 680, p: 1, zs: 75, ch: 0.6, pref: 3, warn: "Cukormentes, gluténmentes változat!" },
+  "kókuszkrém": { kcal: 330, p: 3, zs: 34, ch: 6, pref: 3, warn: "Cukormentes valtozatot valassz!" },
   "fekete kávé": { kcal: 2, p: 0.3, zs: 0, ch: 0, pref: 3, warn: null },
-  "mustár": { kcal: 66, p: 4, zs: 4, ch: 6, pref: 3, warn: "Cukormentes, gluténmentes változat!" },
+  "mustár": { kcal: 66, p: 4, zs: 4, ch: 6, pref: 3, warn: "Cukormentes, glutenmentes valtozat!" },
   "mangalica lapocka": { kcal: 260, p: 19, zs: 20, ch: 0, pref: 1, warn: null },
   "mangalica comb": { kcal: 215, p: 21, zs: 14, ch: 0, pref: 1, warn: null },
   "mangalica dagadó": { kcal: 330, p: 15, zs: 30, ch: 0, pref: 1, warn: null },
   "mangalica csülök": { kcal: 280, p: 20, zs: 22, ch: 0, pref: 1, warn: null },
   "mangalica fej": { kcal: 250, p: 17, zs: 20, ch: 0, pref: 1, warn: null },
   "mangalica köröm": { kcal: 200, p: 18, zs: 14, ch: 0, pref: 1, warn: null },
-  "mangalica hurka": { kcal: 290, p: 11, zs: 24, ch: 5, pref: 1, warn: "Ellenőrizd: gluténmentes, rizs/zabkása nélküli töltelék?" },
-  "mangalica véres hurka": { kcal: 270, p: 10, zs: 22, ch: 6, pref: 1, warn: "Ellenőrizd: gluténmentes töltelék?" },
-  "mangalica szalámi": { kcal: 410, p: 22, zs: 35, ch: 1, pref: 1, warn: "Ellenőrizd: laktóz/glutén-mentes?" },
+  "mangalica hurka": { kcal: 290, p: 11, zs: 24, ch: 5, pref: 1, warn: "Ellenorizd: glutenmentes, rizs/zabkasa nelkuli toltelek?" },
+  "mangalica véres hurka": { kcal: 270, p: 10, zs: 22, ch: 6, pref: 1, warn: "Ellenorizd: glutenmentes toltelek?" },
+  "mangalica szalámi": { kcal: 410, p: 22, zs: 35, ch: 1, pref: 1, warn: "Ellenorizd: laktoz/gluten-mentes?" },
   "mangalica pacal": { kcal: 110, p: 17, zs: 4, ch: 0, pref: 1, warn: null },
-  "mangalica fasírt": { kcal: 260, p: 16, zs: 20, ch: 2, pref: 1, warn: "Ellenőrizd: zsemle/tojás helyett gluténmentes kötőanyag?" },
-  "sertés comb": { kcal: 200, p: 21, zs: 12, ch: 0, pref: 1, warn: null },
-  "sertés lapocka": { kcal: 230, p: 19, zs: 17, ch: 0, pref: 1, warn: null },
-  "sertés csülök": { kcal: 270, p: 19, zs: 21, ch: 0, pref: 1, warn: null },
-  "sertés dagadó": { kcal: 310, p: 15, zs: 28, ch: 0, pref: 1, warn: null },
+  "mangalica fasírt": { kcal: 260, p: 16, zs: 20, ch: 2, pref: 1, warn: "Ellenorizd: zsemle/tojas helyett glutenmentes kotanyag?" },
+  "sertés comb": { kcal: 200, p: 21, zs: 12, ch: 0, pref: 3, warn: null },
+  "sertés lapocka": { kcal: 230, p: 19, zs: 17, ch: 0, pref: 3, warn: null },
+  "sertés csülök": { kcal: 270, p: 19, zs: 21, ch: 0, pref: 3, warn: null },
+  "sertés dagadó": { kcal: 310, p: 15, zs: 28, ch: 0, pref: 3, warn: null },
   "sertés szűzpecsenye": { kcal: 143, p: 22, zs: 5.5, ch: 0, pref: 1, warn: null },
   "sertés bordaszelet": { kcal: 230, p: 21, zs: 16, ch: 0, pref: 1, warn: null },
-  "sertés kötözött sonka": { kcal: 145, p: 20, zs: 7, ch: 1, pref: 1, warn: "Ellenőrizd: cukor/glutén az ízesítésben?" },
+  "sertés kötözött sonka": { kcal: 145, p: 20, zs: 7, ch: 1, pref: 1, warn: "Ellenorizd: cukor/gluten az izesitesben?" },
   "sertés zsír": { kcal: 897, p: 0, zs: 100, ch: 0, pref: 1, warn: null },
   "sertés bőrke": { kcal: 460, p: 35, zs: 35, ch: 0, pref: 1, warn: null },
   "marhahús (felsál)": { kcal: 200, p: 22, zs: 12, ch: 0, pref: 3, warn: null },
   "marha rostélyos": { kcal: 220, p: 21, zs: 15, ch: 0, pref: 3, warn: null },
-  "marha fartő": { kcal: 190, p: 22, zs: 11, ch: 0, pref: 3, warn: null },
   "darált marhahús": { kcal: 250, p: 20, zs: 18, ch: 0, pref: 3, warn: null },
-  "bárány comb": { kcal: 220, p: 20, zs: 15, ch: 0, pref: 3, warn: null },
-  "bárány karaj": { kcal: 280, p: 18, zs: 23, ch: 0, pref: 3, warn: null },
   "csirkemell": { kcal: 120, p: 23, zs: 2.6, ch: 0, pref: 3, warn: null },
   "csirkecomb": { kcal: 180, p: 19, zs: 11, ch: 0, pref: 3, warn: null },
   "csirkeszárny": { kcal: 200, p: 18, zs: 14, ch: 0, pref: 3, warn: null },
@@ -360,10 +352,10 @@ let foodDB = {
   "őzgerinc": { kcal: 158, p: 22, zs: 7, ch: 0, pref: 3, warn: null },
   "vaddisznó comb": { kcal: 160, p: 21, zs: 8, ch: 0, pref: 3, warn: null },
   "nyúlhús": { kcal: 173, p: 21, zs: 9, ch: 0, pref: 3, warn: null },
-  "sertésmáj": { kcal: 130, p: 21, zs: 4, ch: 2, pref: 3, warn: "⚠️ Max heti 1x! A-vitamin túladagolás kockázata." },
-  "marhamáj": { kcal: 135, p: 20, zs: 4.5, ch: 3.9, pref: 3, warn: "⚠️ Max heti 1x! A-vitamin túladagolás kockázata." },
-  "kacsamáj": { kcal: 339, p: 13, zs: 31, ch: 3, pref: 3, warn: "⚠️ Max heti 1x! Nagyon zsíros és A-vitamin-gazdag." },
-  "libamáj": { kcal: 462, p: 8, zs: 44, ch: 5, pref: 3, warn: "⚠️ Max heti 1x! Nagyon energiasűrű, A-vitamin túladagolás kockázata." },
+  "sertésmáj": { kcal: 130, p: 21, zs: 4, ch: 2, pref: 3, warn: "Max heti 1x! A-vitamin tuladagolas kockazata." },
+  "marhamáj": { kcal: 135, p: 20, zs: 4.5, ch: 3.9, pref: 3, warn: "Max heti 1x! A-vitamin tuladagolas kockazata." },
+  "kacsamáj": { kcal: 339, p: 13, zs: 31, ch: 3, pref: 3, warn: "Max heti 1x! Nagyon zsiros es A-vitamin-gazdag." },
+  "libamáj": { kcal: 462, p: 8, zs: 44, ch: 5, pref: 3, warn: "Max heti 1x! Nagyon energiasuru, A-vitamin tuladagolas kockazata." },
   "vese": { kcal: 99, p: 17, zs: 3, ch: 0.8, pref: 3, warn: null },
   "szív": { kcal: 130, p: 17, zs: 5, ch: 1.5, pref: 3, warn: null },
   "velő": { kcal: 244, p: 10, zs: 22, ch: 0, pref: 3, warn: null },
@@ -376,7 +368,7 @@ let foodDB = {
   "busa": { kcal: 110, p: 17, zs: 4.5, ch: 0, pref: 2, warn: null },
   "tengeri sügér": { kcal: 97, p: 18, zs: 2.5, ch: 0, pref: 2, warn: null },
   "tőkehalmáj olaj": { kcal: 902, p: 0, zs: 100, ch: 0, pref: 2, warn: null },
-  "szardella": { kcal: 131, p: 20, zs: 5, ch: 0, pref: 2, warn: "Sózott változatnál figyelj a nátriumra." },
+  "szardella": { kcal: 131, p: 20, zs: 5, ch: 0, pref: 2, warn: "Sozott valtozatnal figyelj a natriumra." },
   "kagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: null },
   "polip": { kcal: 82, p: 15, zs: 1, ch: 2.2, pref: 2, warn: null },
   "tintahal": { kcal: 92, p: 16, zs: 1.4, ch: 3, pref: 2, warn: null },
@@ -385,7 +377,7 @@ let foodDB = {
   "homár": { kcal: 89, p: 19, zs: 0.9, ch: 0, pref: 2, warn: null },
   "osztriga": { kcal: 68, p: 9, zs: 2.5, ch: 4, pref: 2, warn: null },
   "fogas": { kcal: 93, p: 19, zs: 1, ch: 0, pref: 2, warn: null },
-  "lazac": { kcal: 208, p: 20, zs: 13, ch: 0, pref: 3, warn: "⚠️ Kerülendő a preferencia-hierarchia szerint! Helyette makréla/szardínia/hering ajánlott." },
+  "lazac": { kcal: 208, p: 20, zs: 13, ch: 0, pref: 3, warn: "Kerulendo a preferencia-hierarchia szerint! Helyette makrela/szardinia/hering ajanlott." },
   "mangold": { kcal: 19, p: 1.8, zs: 0.2, ch: 1.4, pref: 3, warn: null },
   "kelkáposzta": { kcal: 27, p: 1.9, zs: 0.3, ch: 2.6, pref: 3, warn: null },
   "fejes káposzta": { kcal: 25, p: 1.3, zs: 0.1, ch: 3.3, pref: 3, warn: null },
@@ -394,16 +386,16 @@ let foodDB = {
   "kelbimbó": { kcal: 43, p: 3.4, zs: 0.3, ch: 4.3, pref: 3, warn: null },
   "retek": { kcal: 16, p: 0.7, zs: 0.1, ch: 1.8, pref: 3, warn: null },
   "fehérrépa": { kcal: 28, p: 0.9, zs: 0.1, ch: 4.5, pref: 3, warn: null },
-  "sárgarépa": { kcal: 41, p: 0.9, zs: 0.2, ch: 6.8, pref: 3, warn: "Mérsékelten fogyaszd, viszonylag magas CH." },
-  "cékla": { kcal: 43, p: 1.6, zs: 0.2, ch: 7.6, pref: 3, warn: "Mérsékelten fogyaszd, viszonylag magas CH." },
+  "sárgarépa": { kcal: 41, p: 0.9, zs: 0.2, ch: 6.8, pref: 3, warn: "Mersekelten fogyaszd, viszonylag magas CH." },
+  "cékla": { kcal: 43, p: 1.6, zs: 0.2, ch: 7.6, pref: 3, warn: "Mersekelten fogyaszd, viszonylag magas CH." },
   "padlizsán": { kcal: 25, p: 1, zs: 0.2, ch: 3.5, pref: 3, warn: null },
   "sárga cukkini": { kcal: 17, p: 1.2, zs: 0.3, ch: 2.1, pref: 3, warn: null },
-  "tök (sütőtök)": { kcal: 26, p: 1, zs: 0.1, ch: 5, pref: 3, warn: "Magasabb CH-tartalom, mérd ki pontosan." },
+  "tök (sütőtök)": { kcal: 26, p: 1, zs: 0.1, ch: 5, pref: 3, warn: "Magasabb CH-tartalom, merd ki pontosan." },
   "spárga": { kcal: 20, p: 2.2, zs: 0.1, ch: 1.8, pref: 3, warn: null },
   "articsóka": { kcal: 47, p: 3.3, zs: 0.2, ch: 5, pref: 3, warn: null },
-  "póréhagyma": { kcal: 61, p: 1.5, zs: 0.3, ch: 12, pref: 3, warn: "Magas CH, csak ízesítőként, kis mennyiségben!" },
-  "vöröshagyma": { kcal: 40, p: 1.1, zs: 0.1, ch: 7.6, pref: 3, warn: "Magas CH, csak ízesítőként, kis mennyiségben!" },
-  "fokhagyma": { kcal: 149, p: 6.4, zs: 0.5, ch: 28, pref: 3, warn: "Magas CH, csak ízesítőként, pár gerezd!" },
+  "póréhagyma": { kcal: 61, p: 1.5, zs: 0.3, ch: 12, pref: 3, warn: "Magas CH, csak izesitoként, kis mennyisegben!" },
+  "vöröshagyma": { kcal: 40, p: 1.1, zs: 0.1, ch: 7.6, pref: 3, warn: "Magas CH, csak izesitoként, kis mennyisegben!" },
+  "fokhagyma": { kcal: 149, p: 6.4, zs: 0.5, ch: 28, pref: 3, warn: "Magas CH, csak izesitoként, par gerezd!" },
   "újhagyma": { kcal: 32, p: 1.8, zs: 0.2, ch: 4.6, pref: 3, warn: null },
   "édeskömény": { kcal: 31, p: 1.2, zs: 0.2, ch: 5, pref: 3, warn: null },
   "zeller (gumó)": { kcal: 18, p: 0.9, zs: 0.2, ch: 2.4, pref: 3, warn: null },
@@ -414,20 +406,20 @@ let foodDB = {
   "római saláta": { kcal: 17, p: 1.2, zs: 0.3, ch: 1.2, pref: 3, warn: null },
   "lollo rosso saláta": { kcal: 16, p: 1.4, zs: 0.2, ch: 1.3, pref: 3, warn: null },
   "savanyú káposzta": { kcal: 19, p: 0.9, zs: 0.1, ch: 1.6, pref: 3, warn: null },
-  "csemege uborka (savanyúság)": { kcal: 11, p: 0.3, zs: 0.1, ch: 1.8, pref: 3, warn: "Ellenőrizd: cukrozott lé?" },
+  "csemege uborka (savanyúság)": { kcal: 11, p: 0.3, zs: 0.1, ch: 1.8, pref: 3, warn: "Ellenorizd: cukrozott le?" },
   "zöld olajbogyó": { kcal: 145, p: 1, zs: 15, ch: 3.8, pref: 3, warn: null },
   "fekete olajbogyó": { kcal: 115, p: 0.8, zs: 11, ch: 6, pref: 3, warn: null },
   "csiperkegomba": { kcal: 22, p: 3.1, zs: 0.3, ch: 1.5, pref: 3, warn: null },
   "laskagomba": { kcal: 33, p: 3.3, zs: 0.4, ch: 2.9, pref: 3, warn: null },
   "vargánya": { kcal: 26, p: 2.7, zs: 0.4, ch: 2.6, pref: 3, warn: null },
   "shiitake gomba": { kcal: 34, p: 2.2, zs: 0.5, ch: 4.3, pref: 3, warn: null },
-  "csemegekukorica": { kcal: 86, p: 3.3, zs: 1.4, ch: 16, pref: 3, warn: "⚠️ Magas CH, kerülendő ketogén étrendben!" },
-  "burgonya": { kcal: 77, p: 2, zs: 0.1, ch: 15, pref: 3, warn: "⚠️ Magas CH, kerülendő ketogén étrendben!" },
-  "édesburgonya": { kcal: 86, p: 1.6, zs: 0.1, ch: 17, pref: 3, warn: "⚠️ Magas CH, kerülendő ketogén étrendben!" },
+  "csemegekukorica": { kcal: 86, p: 3.3, zs: 1.4, ch: 16, pref: 3, warn: "Magas CH, kerulendo ketogen etrendben!" },
+  "burgonya": { kcal: 77, p: 2, zs: 0.1, ch: 15, pref: 3, warn: "Magas CH, kerulendo ketogen etrendben!" },
+  "édesburgonya": { kcal: 86, p: 1.6, zs: 0.1, ch: 17, pref: 3, warn: "Magas CH, kerulendo ketogen etrendben!" },
   "paradicsom": { kcal: 18, p: 0.9, zs: 0.2, ch: 2.7, pref: 3, warn: null },
   "koktélparadicsom": { kcal: 18, p: 0.9, zs: 0.2, ch: 2.7, pref: 3, warn: null },
   "fehér spárga": { kcal: 18, p: 2, zs: 0.1, ch: 1.5, pref: 3, warn: null },
-  "csicsóka": { kcal: 73, p: 2, zs: 0.1, ch: 13, pref: 3, warn: "⚠️ Magas CH (inulin), mértékkel fogyaszd!" },
+  "csicsóka": { kcal: 73, p: 2, zs: 0.1, ch: 13, pref: 3, warn: "Magas CH (inulin), mertekkel fogyaszd!" },
   "fekete retek": { kcal: 18, p: 1, zs: 0.1, ch: 1.5, pref: 3, warn: null },
   "lila káposzta": { kcal: 31, p: 1.4, zs: 0.2, ch: 3.8, pref: 3, warn: null },
   "brokkolicsíra": { kcal: 23, p: 3, zs: 0.4, ch: 1.5, pref: 3, warn: null },
@@ -440,29 +432,29 @@ let foodDB = {
   "romanesco": { kcal: 25, p: 2, zs: 0.3, ch: 3, pref: 3, warn: null },
   "kapribogyó": { kcal: 23, p: 2.4, zs: 0.9, ch: 0.4, pref: 3, warn: null },
   "tobozkáposzta (kelkáposzta-rügy)": { kcal: 27, p: 1.9, zs: 0.3, ch: 2.6, pref: 3, warn: null },
-  "főtt rizs": { kcal: 130, p: 2.7, zs: 0.3, ch: 28, pref: 3, warn: "⚠️ Magas CH, ketogén étrendben kerülendő! Egy adag kimerítheti a napi CH-keretet." },
-  "barna rizs": { kcal: 123, p: 2.6, zs: 1, ch: 23, pref: 3, warn: "⚠️ Magas CH, ketogén étrendben kerülendő!" },
-  "tészta (főtt)": { kcal: 158, p: 5.8, zs: 0.9, ch: 28, pref: 3, warn: "⚠️ Glutént és magas CH-t tartalmaz, kerülendő!" },
-  "kenyér (fehér)": { kcal: 265, p: 9, zs: 3.2, ch: 49, pref: 3, warn: "⚠️ Glutén + magas CH, kerülendő!" },
-  "zsemle": { kcal: 290, p: 9, zs: 3.5, ch: 53, pref: 3, warn: "⚠️ Glutén + magas CH, kerülendő!" },
-  "tarhonya (főtt)": { kcal: 150, p: 5, zs: 1, ch: 30, pref: 3, warn: "⚠️ Glutén + magas CH, kerülendő!" },
-  "kuszkusz (főtt)": { kcal: 112, p: 3.8, zs: 0.2, ch: 23, pref: 3, warn: "⚠️ Glutén + magas CH, kerülendő!" },
-  "bulgur (főtt)": { kcal: 83, p: 3.1, zs: 0.2, ch: 16, pref: 3, warn: "⚠️ Glutén + magas CH, kerülendő!" },
-  "quinoa (főtt)": { kcal: 120, p: 4.4, zs: 1.9, ch: 18, pref: 3, warn: "⚠️ Magas CH, csak gluténmentes, de ketogénben nem ajánlott!" },
-  "zabkása": { kcal: 71, p: 2.5, zs: 1.5, ch: 12, pref: 3, warn: "⚠️ Glutén-keresztszennyeződés lehetséges, magas CH!" },
-  "köles (főtt)": { kcal: 119, p: 3.5, zs: 1, ch: 23, pref: 3, warn: "⚠️ Magas CH!" },
+  "főtt rizs": { kcal: 130, p: 2.7, zs: 0.3, ch: 28, pref: 3, warn: "Magas CH, ketogen etrendben kerulendo!" },
+  "barna rizs": { kcal: 123, p: 2.6, zs: 1, ch: 23, pref: 3, warn: "Magas CH, ketogen etrendben kerulendo!" },
+  "tészta (főtt)": { kcal: 158, p: 5.8, zs: 0.9, ch: 28, pref: 3, warn: "Glutent es magas CH-t tartalmaz, kerulendo!" },
+  "kenyér (fehér)": { kcal: 265, p: 9, zs: 3.2, ch: 49, pref: 3, warn: "Gluten + magas CH, kerulendo!" },
+  "zsemle": { kcal: 290, p: 9, zs: 3.5, ch: 53, pref: 3, warn: "Gluten + magas CH, kerulendo!" },
+  "tarhonya (főtt)": { kcal: 150, p: 5, zs: 1, ch: 30, pref: 3, warn: "Gluten + magas CH, kerulendo!" },
+  "kuszkusz (főtt)": { kcal: 112, p: 3.8, zs: 0.2, ch: 23, pref: 3, warn: "Gluten + magas CH, kerulendo!" },
+  "bulgur (főtt)": { kcal: 83, p: 3.1, zs: 0.2, ch: 16, pref: 3, warn: "Gluten + magas CH, kerulendo!" },
+  "quinoa (főtt)": { kcal: 120, p: 4.4, zs: 1.9, ch: 18, pref: 3, warn: "Magas CH, csak glutenmentes, de ketogenben nem ajanlott!" },
+  "zabkása": { kcal: 71, p: 2.5, zs: 1.5, ch: 12, pref: 3, warn: "Gluten-keresztszennyezodes lehetseges, magas CH!" },
+  "köles (főtt)": { kcal: 119, p: 3.5, zs: 1, ch: 23, pref: 3, warn: "Magas CH!" },
   "kókusztejszín": { kcal: 230, p: 2.3, zs: 24, ch: 3, pref: 3, warn: null },
   "kókusztej": { kcal: 154, p: 1.5, zs: 15, ch: 3.4, pref: 3, warn: null },
-  "kókuszjoghurt (cukormentes)": { kcal: 130, p: 1.5, zs: 12, ch: 3, pref: 3, warn: "Ellenőrizd: hozzáadott cukor nélküli?" },
+  "kókuszjoghurt (cukormentes)": { kcal: 130, p: 1.5, zs: 12, ch: 3, pref: 3, warn: "Ellenorizd: hozzaadott cukor nelkuli?" },
   "mandulatej (cukormentes)": { kcal: 17, p: 0.6, zs: 1.5, ch: 0.3, pref: 3, warn: null },
   "kókuszvaj (kókuszkrém)": { kcal: 660, p: 7, zs: 65, ch: 6, pref: 3, warn: null },
-  "élesztőpehely (táplálkozási élesztő)": { kcal: 325, p: 45, zs: 5, ch: 16, pref: 3, warn: "Sajtos ízhatás, mértékkel — figyeld a CH-t." },
+  "élesztőpehely (táplálkozási élesztő)": { kcal: 325, p: 45, zs: 5, ch: 16, pref: 3, warn: "Sajtos izatas, mertekkel - figyeld a CH-t." },
   "fürjtojás": { kcal: 158, p: 13, zs: 11, ch: 0.4, pref: 3, warn: null },
   "kacsatojás": { kcal: 185, p: 13, zs: 14, ch: 1.5, pref: 3, warn: null },
   "rántotta (2 tojásból, vajon sütve)": { kcal: 220, p: 13, zs: 18, ch: 1.5, pref: 3, warn: null },
   "tükörtojás": { kcal: 196, p: 13, zs: 15, ch: 1, pref: 3, warn: null },
   "főtt tojás": { kcal: 155, p: 13, zs: 11, ch: 1.1, pref: 3, warn: null },
-  "ghí (tisztított vaj)": { kcal: 900, p: 0, zs: 100, ch: 0, pref: 3, warn: "Bár tejből készül, a laktóz/kazein nagy része eltávolításra kerül — ettől függetlenül egyeztesd, biztonságos-e neked!" },
+  "ghí (tisztított vaj)": { kcal: 900, p: 0, zs: 100, ch: 0, pref: 3, warn: "Bar tejbol keszul, a laktoz/kazein nagy resze eltavolitasra kerul - egyeztesd, biztonsagos-e neked!" },
   "libazsír": { kcal: 900, p: 0, zs: 100, ch: 0, pref: 3, warn: null },
   "csirkezsír": { kcal: 900, p: 0, zs: 100, ch: 0, pref: 3, warn: null },
   "marhafaggyú": { kcal: 902, p: 0, zs: 100, ch: 0, pref: 3, warn: null },
@@ -483,7 +475,7 @@ let foodDB = {
   "sertészsír (mangalica)": { kcal: 902, p: 0, zs: 100, ch: 0, pref: 1, warn: null },
   "mogyoró": { kcal: 628, p: 15, zs: 61, ch: 5, pref: 3, warn: null },
   "pisztácia": { kcal: 562, p: 20, zs: 45, ch: 8, pref: 3, warn: null },
-  "kesudió": { kcal: 553, p: 18, zs: 44, ch: 9, pref: 3, warn: "Viszonylag magasabb CH, mértékkel fogyaszd." },
+  "kesudió": { kcal: 553, p: 18, zs: 44, ch: 9, pref: 3, warn: "Viszonylag magasabb CH, mertekkel fogyaszd." },
   "pekándió": { kcal: 691, p: 9, zs: 72, ch: 4, pref: 3, warn: null },
   "brazil dió": { kcal: 656, p: 14, zs: 66, ch: 3.5, pref: 3, warn: null },
   "fenyőmag": { kcal: 673, p: 14, zs: 68, ch: 4, pref: 3, warn: null },
@@ -493,7 +485,7 @@ let foodDB = {
   "chia mag": { kcal: 486, p: 17, zs: 31, ch: 1.7, pref: 3, warn: null },
   "szezámmag": { kcal: 573, p: 18, zs: 50, ch: 5, pref: 3, warn: null },
   "kókuszreszelék": { kcal: 660, p: 7, zs: 65, ch: 6, pref: 3, warn: null },
-  "kömény mag": { kcal: 333, p: 18, zs: 22, ch: 12, pref: 3, warn: "Csak fűszerként, csipetnyi mennyiségben befolyásolja a CH-t." },
+  "kömény mag": { kcal: 333, p: 18, zs: 22, ch: 12, pref: 3, warn: "Csak fuszerként, csipetnyi mennyisegben befolyasolja a CH-t." },
   "kendermag (héjazott)": { kcal: 553, p: 31, zs: 49, ch: 2.6, pref: 3, warn: null },
   "fekete szezámmag": { kcal: 573, p: 18, zs: 50, ch: 5, pref: 3, warn: null },
   "mák": { kcal: 525, p: 18, zs: 42, ch: 6, pref: 3, warn: null },
@@ -501,36 +493,36 @@ let foodDB = {
   "petrezselyemzöld": { kcal: 36, p: 3, zs: 0.8, ch: 2.4, pref: 3, warn: null },
   "snidling": { kcal: 30, p: 3.3, zs: 0.7, ch: 1.7, pref: 3, warn: null },
   "bazsalikom": { kcal: 23, p: 3.2, zs: 0.6, ch: 1.2, pref: 3, warn: null },
-  "rozmaring": { kcal: 131, p: 3.3, zs: 5.9, ch: 5, pref: 3, warn: "Csak ízesítőként, kis mennyiségben." },
-  "kakukkfű": { kcal: 101, p: 5.6, zs: 1.7, ch: 14, pref: 3, warn: "Csak ízesítőként, kis mennyiségben." },
-  "oregánó": { kcal: 265, p: 9, zs: 4.3, ch: 27, pref: 3, warn: "Csak ízesítőként, kis mennyiségben." },
-  "menta": { kcal: 70, p: 3.8, zs: 0.9, ch: 6, pref: 3, warn: "Csak ízesítőként, kis mennyiségben." },
-  "tárkony": { kcal: 295, p: 23, zs: 7, ch: 35, pref: 3, warn: "Csak ízesítőként, csipetnyi mennyiségben." },
-  "majoranna": { kcal: 271, p: 13, zs: 7, ch: 28, pref: 3, warn: "Csak ízesítőként, csipetnyi mennyiségben." },
-  "zsálya": { kcal: 315, p: 11, zs: 13, ch: 27, pref: 3, warn: "Csak ízesítőként, csipetnyi mennyiségben." },
+  "rozmaring": { kcal: 131, p: 3.3, zs: 5.9, ch: 5, pref: 3, warn: "Csak izesitoként, kis mennyisegben." },
+  "kakukkfű": { kcal: 101, p: 5.6, zs: 1.7, ch: 14, pref: 3, warn: "Csak izesitoként, kis mennyisegben." },
+  "oregánó": { kcal: 265, p: 9, zs: 4.3, ch: 27, pref: 3, warn: "Csak izesitoként, kis mennyisegben." },
+  "menta": { kcal: 70, p: 3.8, zs: 0.9, ch: 6, pref: 3, warn: "Csak izesitoként, kis mennyisegben." },
+  "tárkony": { kcal: 295, p: 23, zs: 7, ch: 35, pref: 3, warn: "Csak izesitoként, csipetnyi mennyisegben." },
+  "majoranna": { kcal: 271, p: 13, zs: 7, ch: 28, pref: 3, warn: "Csak izesitoként, csipetnyi mennyisegben." },
+  "zsálya": { kcal: 315, p: 11, zs: 13, ch: 27, pref: 3, warn: "Csak izesitoként, csipetnyi mennyisegben." },
   "koriander zöldje": { kcal: 23, p: 2.1, zs: 0.5, ch: 1.7, pref: 3, warn: null },
-  "borsikafű": { kcal: 274, p: 13, zs: 7, ch: 31, pref: 3, warn: "Csak ízesítőként, csipetnyi mennyiségben." },
-"babérlevél": { kcal: 313, p: 7.6, zs: 8.4, ch: 49, pref: 3, warn: "Csak főzéshez, nem fogyasztandó, elhanyagolható CH-hatás." },
+  "borsikafű": { kcal: 274, p: 13, zs: 7, ch: 31, pref: 3, warn: "Csak izesitoként, csipetnyi mennyisegben." },
+  "babérlevél": { kcal: 313, p: 7.6, zs: 8.4, ch: 49, pref: 3, warn: "Csak fozeshez, nem fogyasztando, elhanyagolhato CH-hatas." },
   "lestyán": { kcal: 25, p: 2, zs: 0.6, ch: 3, pref: 3, warn: null },
   "só": { kcal: 0, p: 0, zs: 0, ch: 0, pref: 3, warn: null },
-  "bors": { kcal: 251, p: 10, zs: 3.3, ch: 38, pref: 3, warn: "Csak csipetnyi mennyiségben befolyásolja a CH-t." },
-  "pirospaprika (őrölt)": { kcal: 282, p: 14, zs: 13, ch: 34, pref: 3, warn: "Csak csipetnyi mennyiségben befolyásolja a CH-t." },
-  "fahéj": { kcal: 247, p: 4, zs: 1.2, ch: 53, pref: 3, warn: "Csak csipetnyi mennyiségben befolyásolja a CH-t." },
+  "bors": { kcal: 251, p: 10, zs: 3.3, ch: 38, pref: 3, warn: "Csak csipetnyi mennyisegben befolyasolja a CH-t." },
+  "pirospaprika (őrölt)": { kcal: 282, p: 14, zs: 13, ch: 34, pref: 3, warn: "Csak csipetnyi mennyisegben befolyasolja a CH-t." },
+  "fahéj": { kcal: 247, p: 4, zs: 1.2, ch: 53, pref: 3, warn: "Csak csipetnyi mennyisegben befolyasolja a CH-t." },
   "ecet (alma)": { kcal: 22, p: 0, zs: 0, ch: 0.9, pref: 3, warn: null },
-  "szójaszósz (gluténmentes)": { kcal: 53, p: 8, zs: 0, ch: 1, pref: 3, warn: "Ellenőrizd: kifejezetten gluténmentes tamari-e?" },
+  "szójaszósz (gluténmentes)": { kcal: 53, p: 8, zs: 0, ch: 1, pref: 3, warn: "Ellenorizd: kifejezetten glutenmentes tamari-e?" },
   "erythritol (édesítő)": { kcal: 0, p: 0, zs: 0, ch: 0, pref: 3, warn: null },
   "sztívia": { kcal: 0, p: 0, zs: 0, ch: 0, pref: 3, warn: null },
-  "xilit": { kcal: 240, p: 0, zs: 0, ch: 0, pref: 3, warn: "Mértékkel fogyaszd, emésztési panaszt okozhat." },
+  "xilit": { kcal: 240, p: 0, zs: 0, ch: 0, pref: 3, warn: "Mertekkel fogyaszd, emésztési panaszt okozhat." },
   "ásványvíz": { kcal: 0, p: 0, zs: 0, ch: 0, pref: 3, warn: null },
   "tea (cukor nélkül)": { kcal: 1, p: 0, zs: 0, ch: 0, pref: 3, warn: null },
   "bulletproof kávé (kávé+vaj+MCT)": { kcal: 230, p: 0.5, zs: 25, ch: 0, pref: 3, warn: null },
   "csontleves": { kcal: 40, p: 6, zs: 1.5, ch: 0.5, pref: 3, warn: null },
-  "száraz vörösbor": { kcal: 85, p: 0.1, zs: 0, ch: 2.6, pref: 3, warn: "Alkohol! Csak alkalmanként, mérsékelt mennyiségben." },
-  "száraz fehérbor": { kcal: 82, p: 0.1, zs: 0, ch: 2.6, pref: 3, warn: "Alkohol! Csak alkalmanként, mérsékelt mennyiségben." },
-  "málna": { kcal: 52, p: 1.2, zs: 0.7, ch: 5.4, pref: 3, warn: "Mértékkel fogyaszd, viszonylag a legalacsonyabb CH-jú gyümölcsök közé tartozik." },
-  "szeder": { kcal: 43, p: 1.4, zs: 0.5, ch: 4.3, pref: 3, warn: "Mértékkel fogyaszd." },
-  "eper": { kcal: 32, p: 0.7, zs: 0.3, ch: 5.7, pref: 3, warn: "Mértékkel fogyaszd." },
-  "áfonya": { kcal: 57, p: 0.7, zs: 0.3, ch: 12, pref: 3, warn: "Magasabb CH, csak kis mennyiségben!" },
+  "száraz vörösbor": { kcal: 85, p: 0.1, zs: 0, ch: 2.6, pref: 3, warn: "Alkohol! Csak alkalmanként, mérsékelten." },
+  "száraz fehérbor": { kcal: 82, p: 0.1, zs: 0, ch: 2.6, pref: 3, warn: "Alkohol! Csak alkalmanként, mérsékelten." },
+  "málna": { kcal: 52, p: 1.2, zs: 0.7, ch: 5.4, pref: 3, warn: "Mertekkel fogyaszd, viszonylag legalacsonyabb CH-ju gyumolcsok koze tartozik." },
+  "szeder": { kcal: 43, p: 1.4, zs: 0.5, ch: 4.3, pref: 3, warn: "Mertekkel fogyaszd." },
+  "eper": { kcal: 32, p: 0.7, zs: 0.3, ch: 5.7, pref: 3, warn: "Mertekkel fogyaszd." },
+  "áfonya": { kcal: 57, p: 0.7, zs: 0.3, ch: 12, pref: 3, warn: "Magasabb CH, csak kis mennyisegben!" },
   "citrom": { kcal: 29, p: 1.1, zs: 0.3, ch: 3, pref: 3, warn: null },
   "lime": { kcal: 30, p: 0.7, zs: 0.2, ch: 3, pref: 3, warn: null },
   "fehérlábú garnéla": { kcal: 99, p: 21, zs: 1.4, ch: 0, pref: 2, warn: null },
@@ -538,36 +530,33 @@ let foodDB = {
   "közönséges garnéla": { kcal: 92, p: 20, zs: 1.2, ch: 0, pref: 2, warn: null },
   "atlanti árokgarnéla": { kcal: 92, p: 20, zs: 1.2, ch: 0, pref: 2, warn: null },
   "vörös királyrák": { kcal: 84, p: 19, zs: 0.8, ch: 0, pref: 2, warn: null },
-  "mediterrán kékkagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: "Tartalmaz szénhidrátot (~4g/100g) — számít a napi CH-keretbe!" },
-  "atlanti kékkagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: "Tartalmaz szénhidrátot (~4g/100g) — számít a napi CH-keretbe!" },
-  "csendes-óceáni osztriga": { kcal: 81, p: 9, zs: 2.3, ch: 4.9, pref: 2, warn: "Tartalmaz szénhidrátot (~5g/100g) — számít a napi CH-keretbe!" },
-  "európai lapos osztriga": { kcal: 81, p: 9, zs: 2.3, ch: 4.9, pref: 2, warn: "Tartalmaz szénhidrátot (~5g/100g) — számít a napi CH-keretbe!" },
-  "portugál osztriga": { kcal: 81, p: 9, zs: 2.3, ch: 4.9, pref: 2, warn: "Tartalmaz szénhidrátot (~5g/100g) — számít a napi CH-keretbe!" },
-  "sima vénuszkagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szénhidrátot (~3-4g/100g) — számít a napi CH-keretbe!" },
-  "fekete-tengeri bárkakagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szénhidrátot (~3-4g/100g) — számít a napi CH-keretbe!" },
-  "nagy fésűkagyló": { kcal: 88, p: 17, zs: 0.8, ch: 3.2, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "mediterrán fésűkagyló": { kcal: 88, p: 17, zs: 0.8, ch: 3.2, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "atlanti tengeri fésűkagyló": { kcal: 88, p: 17, zs: 0.8, ch: 3.2, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "borotvakagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "nagy borotvakagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "atlanti késkagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "barázdált borotvakagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "japán geoduck": { kcal: 82, p: 16, zs: 0.8, ch: 2.5, pref: 2, warn: "Tartalmaz szénhidrátot (~2-3g/100g) — számít a napi CH-keretbe!" },
-  "szív alakú vénusz-kagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szénhidrátot (~3-4g/100g) — számít a napi CH-keretbe!" },
-  "sima dosinia-kagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szénhidrátot (~3-4g/100g) — számít a napi CH-keretbe!" },
-  "tellin-kagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szénhidrátot (~3-4g/100g) — számít a napi CH-keretbe!" },
-  "vegyes vénuszkagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szénhidrátot (~3-4g/100g) — számít a napi CH-keretbe!" },
-  "fekete kagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: "Tartalmaz szénhidrátot (~4g/100g) — számít a napi CH-keretbe!" },
-  "polip": { kcal: 82, p: 15, zs: 1, ch: 2.2, pref: 2, warn: "Tartalmaz kevés szénhidrátot (~2g/100g)." },
-  "tintahal": { kcal: 92, p: 16, zs: 1.4, ch: 3.1, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "sávos murex": { kcal: 90, p: 17, zs: 1, ch: 2, pref: 2, warn: "Tengeri csiga — tartalmaz kevés szénhidrátot (~2g/100g)." },
-  "közönséges parti csiga": { kcal: 90, p: 17, zs: 1, ch: 2, pref: 2, warn: "Tengeri csiga — tartalmaz kevés szénhidrátot (~2g/100g)." },
-  "kalmárkarika": { kcal: 92, p: 16, zs: 1.4, ch: 3.1, pref: 2, warn: "Panírozott/feldolgozott változat CH-ja SOKKAL magasabb — címkét ellenőrizd!" },
-  "vegyes tintahal": { kcal: 92, p: 16, zs: 1.4, ch: 3.1, pref: 2, warn: "Tartalmaz szénhidrátot (~3g/100g) — számít a napi CH-keretbe!" },
-  "vegyes polip": { kcal: 82, p: 15, zs: 1, ch: 2.2, pref: 2, warn: "Tartalmaz kevés szénhidrátot (~2g/100g)." },
+  "mediterrán kékkagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: "Tartalmaz szenhidratot (~4g/100g) - szamit a napi CH-keretbe!" },
+  "atlanti kékkagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: "Tartalmaz szenhidratot (~4g/100g) - szamit a napi CH-keretbe!" },
+  "csendes-óceáni osztriga": { kcal: 81, p: 9, zs: 2.3, ch: 4.9, pref: 2, warn: "Tartalmaz szenhidratot (~5g/100g) - szamit a napi CH-keretbe!" },
+  "európai lapos osztriga": { kcal: 81, p: 9, zs: 2.3, ch: 4.9, pref: 2, warn: "Tartalmaz szenhidratot (~5g/100g) - szamit a napi CH-keretbe!" },
+  "portugál osztriga": { kcal: 81, p: 9, zs: 2.3, ch: 4.9, pref: 2, warn: "Tartalmaz szenhidratot (~5g/100g) - szamit a napi CH-keretbe!" },
+  "sima vénuszkagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szenhidratot (~3-4g/100g) - szamit a napi CH-keretbe!" },
+  "fekete-tengeri bárkakagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szenhidratot (~3-4g/100g) - szamit a napi CH-keretbe!" },
+  "nagy fésűkagyló": { kcal: 88, p: 17, zs: 0.8, ch: 3.2, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "mediterrán fésűkagyló": { kcal: 88, p: 17, zs: 0.8, ch: 3.2, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "atlanti tengeri fésűkagyló": { kcal: 88, p: 17, zs: 0.8, ch: 3.2, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "borotvakagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "nagy borotvakagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "atlanti késkagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "barázdált borotvakagyló": { kcal: 90, p: 15, zs: 1.5, ch: 3, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "japán geoduck": { kcal: 82, p: 16, zs: 0.8, ch: 2.5, pref: 2, warn: "Tartalmaz szenhidratot (~2-3g/100g) - szamit a napi CH-keretbe!" },
+  "szív alakú vénusz-kagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szenhidratot (~3-4g/100g) - szamit a napi CH-keretbe!" },
+  "sima dosinia-kagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szenhidratot (~3-4g/100g) - szamit a napi CH-keretbe!" },
+  "tellin-kagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szenhidratot (~3-4g/100g) - szamit a napi CH-keretbe!" },
+  "vegyes vénuszkagyló": { kcal: 86, p: 14, zs: 1, ch: 3.5, pref: 2, warn: "Tartalmaz szenhidratot (~3-4g/100g) - szamit a napi CH-keretbe!" },
+  "fekete kagyló": { kcal: 86, p: 12, zs: 2.2, ch: 3.7, pref: 2, warn: "Tartalmaz szenhidratot (~4g/100g) - szamit a napi CH-keretbe!" },
+  "sávos murex": { kcal: 90, p: 17, zs: 1, ch: 2, pref: 2, warn: "Tengeri csiga - tartalmaz keves szenhidratot (~2g/100g)." },
+  "közönséges parti csiga": { kcal: 90, p: 17, zs: 1, ch: 2, pref: 2, warn: "Tengeri csiga - tartalmaz keves szenhidratot (~2g/100g)." },
+  "kalmárkarika": { kcal: 92, p: 16, zs: 1.4, ch: 3.1, pref: 2, warn: "Panirozott/feldolgozott valtozat CH-ja SOKKAL magasabb - cimket ellenorizd!" },
+  "vegyes tintahal": { kcal: 92, p: 16, zs: 1.4, ch: 3.1, pref: 2, warn: "Tartalmaz szenhidratot (~3g/100g) - szamit a napi CH-keretbe!" },
+  "vegyes polip": { kcal: 82, p: 15, zs: 1, ch: 2.2, pref: 2, warn: "Tartalmaz keves szenhidratot (~2g/100g)." }
 };
 
-// Firebase
 const entriesRef = ref(db, 'entries');
 const foodRef = ref(db, 'foodDB');
 
@@ -599,7 +588,6 @@ updateDateDisplay();
 updateFoodSuggest();
 setInterval(updateDateDisplay, 60000);
 
-// === GOOGLE AUTH ===
 window.handleGoogleAuth = function() {
   const client = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
@@ -616,13 +604,8 @@ window.handleGoogleAuth = function() {
   client.requestAccessToken();
 }
 
-// === GOOGLE SHEETS EXPORT ===
 window.exportToSheets = async function() {
-  if (!googleAccessToken) {
-    showToast('⚠️ Előbb jelentkezz be Google fiókba!');
-    handleGoogleAuth();
-    return;
-  }
+  if (!googleAccessToken) { showToast('⚠️ Előbb jelentkezz be Google fiókba!'); handleGoogleAuth(); return; }
   showToast('📊 Sheets létrehozása...');
   try {
     const now = new Date();
@@ -651,24 +634,18 @@ window.exportToSheets = async function() {
     });
     showToast('✅ Google Sheets feltöltve!');
     window.open(`https://docs.google.com/spreadsheets/d/${spreadsheetId}`, '_blank');
-  } catch(e) {
-    showToast('❌ Hiba a Sheets exportnál!');
-  }
+  } catch(e) { showToast('❌ Hiba a Sheets exportnál!'); }
 }
 
-// === GOOGLE DOCS EXPORT ===
 window.exportToDocs = async function() {
-  if (!googleAccessToken) {
-    showToast('⚠️ Előbb jelentkezz be Google fiókba!');
-    handleGoogleAuth();
-    return;
-  }
+  if (!googleAccessToken) { showToast('⚠️ Előbb jelentkezz be Google fiókba!'); handleGoogleAuth(); return; }
   showToast('📝 Docs létrehozása...');
   try {
     const now = new Date();
     const weekData = getWeekData();
     const avgKcal = Math.round(weekData.reduce((a,d)=>a+d.kcal,0)/7);
     const avgCH = Math.round(weekData.reduce((a,d)=>a+d.ch,0)/7);
+    let evalText = avgCH<=20 ? 'Kiváló! Nagyon alacsony szénhidrát.' : avgCH<=30 ? 'Jó! Szénhidrát a ketogén tartományon belül.' : 'Szénhidrát meghaladja a 30g célt!';
     evalText += avgKcal > TARGETS.kcal * 1.1 ? ' Kalória a cél felett.' : avgKcal < TARGETS.kcal * 0.85 ? ' Kalória a cél alatt.' : ' Kalória a célérték közelében.';
     const createRes = await fetch('https://docs.googleapis.com/v1/documents', {
       method: 'POST',
@@ -685,9 +662,7 @@ window.exportToDocs = async function() {
     });
     showToast('✅ Google Docs feltöltve!');
     window.open(`https://docs.google.com/document/d/${documentId}`, '_blank');
-  } catch(e) {
-    showToast('❌ Hiba a Docs exportnál!');
-  }
+  } catch(e) { showToast('❌ Hiba a Docs exportnál!'); }
 }
 
 window.exportMonthlyToSheets = async function() {
@@ -723,11 +698,8 @@ window.exportMonthlyToSheets = async function() {
   } catch(e) { showToast('❌ Hiba!'); }
 }
 
-window.exportMonthlyToDocs = async function() {
-  showToast('Hamarosan elérhető!');
-}
+window.exportMonthlyToDocs = async function() { showToast('Hamarosan elérhető!'); }
 
-// === NAVIGATION ===
 window.showPage = function(page) {
   ['Naplo','Heti','Havi','Lexikon'].forEach(p => {
     document.getElementById('page'+p).style.display = 'none';
@@ -740,7 +712,6 @@ window.showPage = function(page) {
   if (page === 'Lexikon') renderLexicon();
 }
 
-// === RECORDING ===
 window.toggleRecording = function() {
   if (isRecording) stopRec(); else startRec();
 }
@@ -784,7 +755,6 @@ function startRec() {
 
 function stopRec() { if (recognition) recognition.stop(); }
 
-// === CLAUDE ANALYZE ===
 async function analyzeWithClaude(text) {
   document.getElementById('thinkingBox').classList.add('show');
   document.getElementById('analyzeResult').classList.remove('show');
@@ -796,7 +766,15 @@ async function analyzeWithClaude(text) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 1000,
-        system: `Ketogén diéta asszisztens vagy. Fontos: laktózmentes, gluténmentes étrend! Preferencia: 1.mangalica 2.hal(lazac nélkül!) 3.csirkemáj(max heti 1x). Azonosítsd az élelmiszert és mennyiséget grammban. Ismert élelmiszerek: ${foodList}. Válaszolj CSAK JSON-ban: {"nev":"élelmiszer neve magyarul","gram":szám,"kcal_100g":szám,"p_100g":szám,"zs_100g":szám,"ch_100g":szám,"uj_elem":true/false,"figyelmeztetes":"ha van probléma vagy null"}`,
+        system: `Ketogén diéta asszisztens vagy. Fontos szabályok:
+1. Laktózmentes, gluténmentes étrend!
+2. Preferencia: 1.mangalica 2.hal(lazac TILOS!) 3.csirkemáj(max heti 1x)
+3. KRITIKUS: Ha a felhasználó "sertés" előtaggal mond be valamit (pl. "sertés comb", "sertés tarja"), akkor KÖTELEZŐ a pontos sertés változatot visszaadni, NEM a mangalica változatot! A "sertés comb" az "sertés comb", nem "mangalica comb"!
+4. Azonosítsd az élelmiszert PONTOSAN a bemondott név alapján.
+5. A mennyiséget grammban add meg. Ha darabszámot mondanak (pl. "2 tojás"), számítsd át: 1 tojás = 60g.
+6. Ha a szám furcsán hangzik (pl. 1050 helyett 150 lehet), értelmezd a logikus étkezési mennyiséget.
+Ismert élelmiszerek: ${foodList}.
+Válaszolj CSAK JSON-ban: {"nev":"élelmiszer neve magyarul pontosan","gram":szám,"kcal_100g":szám,"p_100g":szám,"zs_100g":szám,"ch_100g":szám,"uj_elem":true/false,"figyelmeztetes":"ha van probléma vagy null"}`,
         messages: [{ role: 'user', content: `Elemezd: "${text}"` }]
       })
     });
@@ -860,28 +838,46 @@ function normalize(s) {
 }
 
 function localParse(text) {
-  const lower = text.toLowerCase();
-  const normLower = normalize(lower);
+  // 1. Hangfelismerési torzítás javítása: 1050->150, 1030->130 stb.
+  const correctedText = text.replace(/\b1(0\d{2})\b/g, (_, rest) => rest);
+  // 2. Összetett számok javítása: "1 50 gramm" -> "150 gramm"
+  const fixedText = correctedText.replace(/(\d+)\s+(\d+)\s*(gramm|gram|g\b)/gi, (_, a, b, unit) => {
+    return (a + b) + ' ' + unit;
+  });
   let gram = 100;
-  const gm = text.match(/(\d+)\s*(gramm|gram|dkg|g\b)/i);
+  const gm = fixedText.match(/(\d+)\s*(gramm|gram|dkg|g\b)/i);
   if (gm) {
     gram = parseInt(gm[1]);
     if (gm[2].toLowerCase() === 'dkg') gram *= 10;
+  } else {
+    // Darabszám felismerés
+    const pieceMatch = text.match(/(\d+)\s*(db|darab|tojás|fürjtojás|kacsatojás)?/i);
+    if (pieceMatch && parseInt(pieceMatch[1]) > 0 && parseInt(pieceMatch[1]) <= 20) {
+      const count = parseInt(pieceMatch[1]);
+      const lowerText = text.toLowerCase();
+      if (lowerText.includes('fürjtojás') || lowerText.includes('fürj tojás')) {
+        gram = count * 12;
+      } else if (lowerText.includes('kacsatojás') || lowerText.includes('kacsa tojás')) {
+        gram = count * 80;
+      } else if (lowerText.includes('tojás')) {
+        gram = count * 60;
+      }
+    }
   }
+  const lower = correctedText.toLowerCase();
+  const normLower = normalize(lower);
   for (const [name, data] of Object.entries(foodDB)) {
     if (lower.includes(name)) {
       showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
       return;
     }
   }
-
   for (const [name, data] of Object.entries(foodDB)) {
     if (normLower.includes(normalize(name))) {
       showResult(name, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
       return;
     }
   }
-
   const words = normLower.replace(/\d+\s*(gramm|gram|dkg|g)\b/gi,'').split(/\s+/).filter(w=>w.length>2);
   let best = null, bestDist = 3;
   for (const [name, data] of Object.entries(foodDB)) {
@@ -895,11 +891,47 @@ function localParse(text) {
   }
   if (best) {
     const data = foodDB[best];
+    const inputNorm = normalize(lower);
+    const bestNorm = normalize(best);
+    const isExactPartial = inputNorm.includes(bestNorm) || bestNorm.split(' ').every(w => inputNorm.includes(w));
+    if (!isExactPartial) {
+      document.getElementById('transcriptBox').textContent = `❓ "${text}" → "${capitalize(best)}"-nek értelmeztem. Helyes?`;
+      document.getElementById('analyzeResult').classList.remove('show');
+      showConfirmButtons(best, gram, data);
+      return;
+    }
     showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
     return;
   }
-
   document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
+}
+
+function showConfirmButtons(name, gram, data) {
+  const old = document.getElementById('confirmBox');
+  if (old) old.remove();
+  const box = document.createElement('div');
+  box.id = 'confirmBox';
+  box.style.cssText = 'display:flex;gap:10px;margin-top:10px;width:100%';
+  box.innerHTML = `
+    <button onclick="confirmYes()" style="flex:1;padding:12px;background:var(--green);border:none;border-radius:var(--radius);color:white;font-size:14px;font-weight:600;cursor:pointer">✅ Igen, helyes</button>
+    <button onclick="confirmNo()" style="flex:1;padding:12px;background:var(--red);border:none;border-radius:var(--radius);color:white;font-size:14px;font-weight:600;cursor:pointer">❌ Nem, más</button>
+  `;
+  document.getElementById('transcriptBox').after(box);
+  window._pendingConfirm = { name, gram, data };
+}
+
+window.confirmYes = function() {
+  const p = window._pendingConfirm;
+  if (!p) return;
+  document.getElementById('confirmBox')?.remove();
+  showResult(p.name, p.gram, p.data.kcal, p.data.p, p.data.zs, p.data.ch, p.data.warn);
+  window._pendingConfirm = null;
+}
+
+window.confirmNo = function() {
+  document.getElementById('confirmBox')?.remove();
+  document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
+  window._pendingConfirm = null;
 }
 
 window.addEntry = function() {
@@ -934,7 +966,6 @@ window.deleteEntry = function(key) {
   showToast('🗑️ Törölve');
 }
 
-// === RENDER TODAY ===
 function renderTodayLog() {
   const today = todayKey();
   const todayE = entries.filter(e => e.date === today);
@@ -943,7 +974,7 @@ function renderTodayLog() {
     container.innerHTML = `<div class="empty-state"><div class="icon">🥗</div><p>Még nincs mai bejegyzés.<br>Használd a mikrofont vagy a kézi bevitelt!</p></div>`;
     return;
   }
-  const icons = {mangalica:'🥩',sertés:'🥩',tarja:'🥩',szalonna:'🥓',kolbász:'🌭',sonka:'🍖',makréla:'🐟',szardínia:'🐟',hering:'🐟',pisztráng:'🐟',tonhal:'🐟',csirkemáj:'🍗',máj:'🍗',tojás:'🥚',sajt:'🧀',avokádó:'🥑',brokkoli:'🥦',saláta:'🥗',kávé:'☕',vaj:'🧈',olívaolaj:'🫒'};
+  const icons = {mangalica:'🥩',sertés:'🥩',tarja:'🥩',szalonna:'🥓',kolbász:'🌭',sonka:'🍖',makréla:'🐟',szardínia:'🐟',hering:'🐟',pisztráng:'🐟',tonhal:'🐟',csirkemáj:'🍗',máj:'🍗',tojás:'🥚',avokádó:'🥑',brokkoli:'🥦',saláta:'🥗',kávé:'☕',olívaolaj:'🫒'};
   container.innerHTML = todayE.map(e => {
     let icon = '🍽️';
     for (const [k,v] of Object.entries(icons)) { if (e.name && e.name.includes(k)) { icon = v; break; } }
@@ -966,7 +997,6 @@ function getKcalColor(kcal, threshold) {
   return kcal > threshold ? 'var(--orange)' : 'var(--accent2)';
 }
 
-// === UPDATE HEADER ===
 function updateHeader() {
   const today = todayKey();
   const t = sum(entries.filter(e => e.date === today));
@@ -989,7 +1019,7 @@ function getBarColor(pct) {
   if (pct < 85) return 'var(--blue)';
   return 'var(--green)';
 }
-  // === WEEKLY ===
+
 function getWeekData() {
   const now = new Date();
   const dayNames = ['V','H','K','Sze','Cs','P','Szo'];
@@ -1035,7 +1065,6 @@ function renderWeekly() {
     <div class="eval-box ${evalClass}"><strong>Értékelés:</strong><br>${evalText}</div>`;
 }
 
-// === MONTHLY ===
 function renderMonthly() {
   const now = new Date();
   const year=now.getFullYear(), month=now.getMonth();
@@ -1067,7 +1096,6 @@ function renderMonthly() {
     ${daysLogged===0?'<div class="empty-state"><div class="icon">📅</div><p>Még nincs havi adat.</p></div>':''}`;
 }
 
-// === LEXICON ===
 function renderLexicon() {
   const used={};
   entries.forEach(e=>{ if(!used[e.name])used[e.name]=0; used[e.name]++; });
@@ -1092,7 +1120,6 @@ function renderLexicon() {
   }).join('');
 }
 
-// === HELPERS ===
 function todayKey(){return dateKey(new Date());}
 function dateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function sum(arr){return arr.reduce((a,e)=>({kcal:a.kcal+(e.kcal||0),p:Math.round((a.p+(e.p||0))*10)/10,zs:Math.round((a.zs+(e.zs||0))*10)/10,ch:Math.round((a.ch+(e.ch||0))*10)/10}),{kcal:0,p:0,zs:0,ch:0});}
