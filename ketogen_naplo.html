@@ -930,8 +930,10 @@ window.confirmYes = function() {
 }
 
 window.confirmNo = function() {
+  const p = window._pendingConfirm;
   document.getElementById('confirmBox')?.remove();
-  document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
+  push(ref(db, 'unknownFoods'), { text: p ? p.name : '(ismeretlen)', date: todayKey(), time: new Date().toLocaleTimeString('hu-HU'), source: 'voice-rejected', ts: Date.now() });
+  document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani — elmentve ellenőrzésre. Próbáld kézi bevitellel!';
   window._pendingConfirm = null;
 }
 
