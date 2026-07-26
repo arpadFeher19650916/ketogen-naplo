@@ -903,7 +903,8 @@ function localParse(text) {
     showResult(best, gram, data.kcal, data.p, data.zs, data.ch, data.warn);
     return;
   }
-  document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
+ push(ref(db, 'unknownFoods'), { text, date: todayKey(), time: new Date().toLocaleTimeString('hu-HU'), source: 'voice', ts: Date.now() });
+document.getElementById('transcriptBox').textContent = '⚠️ Nem sikerült azonosítani. Próbáld kézi bevitellel!';
 }
 
 function showConfirmButtons(name, gram, data) {
