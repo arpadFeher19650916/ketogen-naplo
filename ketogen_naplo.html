@@ -948,7 +948,11 @@ window.manualAdd = function() {
   const gram = parseFloat(document.getElementById('manualGram').value) || 100;
   if (!name) { showToast('Add meg az élelmiszer nevét!'); return; }
   const food = foodDB[name];
-  if (!food) { showToast('Ismeretlen élelmiszer! Próbálj más nevet.'); return; }
+ if (!food) {
+    push(ref(db, 'unknownFoods'), { text: name, gram, date: todayKey(), time: new Date().toLocaleTimeString('hu-HU'), source: 'manual', ts: Date.now() });
+    showToast('Ismeretlen élelmiszer — elmentve ellenőrzésre!');
+    return;
+  }
   const m = gram/100;
   push(entriesRef, {
     date: todayKey(), time: new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}),
