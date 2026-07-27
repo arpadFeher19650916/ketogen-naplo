@@ -207,7 +207,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, push, remove, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 const firebaseConfig = {
   apiKey: "AIzaSyAq-ZiJldz-tvqdx0HU0L1SwKvWB0UM6Uw",
   authDomain: "keto-944f5.firebaseapp.com",
@@ -223,6 +223,10 @@ const SCOPES = "https://www.googleapis.com/auth/spreadsheets https://www.googlea
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+signInAnonymously(auth).catch(function(error) {
+  console.error('Firebase anonim bejelentkezes hiba:', error);
+});
 const TARGETS = { kcal: 1700, p: 120, zs: 122, ch: 30 };
 
 let googleAccessToken = null;
