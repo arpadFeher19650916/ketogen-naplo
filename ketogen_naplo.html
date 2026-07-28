@@ -566,7 +566,8 @@ const foodRef = ref(db, 'foodDB');
 
 document.getElementById('syncBadge').textContent = '☁️ Online';
 
-onValue(entriesRef, (snapshot) => {
+onAuthStateChanged(auth, (user) => {
+  if (!user) return;onValue(entriesRef, (snapshot) => {
   entries = [];
   snapshot.forEach((child) => {
     entries.push({ ...child.val(), firebaseKey: child.key });
@@ -587,7 +588,7 @@ onValue(foodRef, (snapshot) => {
     updateFoodSuggest();
   }
 });
-
+});
 updateDateDisplay();
 updateFoodSuggest();
 setInterval(updateDateDisplay, 60000);
