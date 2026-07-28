@@ -765,25 +765,11 @@ async function analyzeWithClaude(text) {
   document.getElementById('analyzeResult').classList.remove('show');
   const foodList = Object.keys(foodDB).join(', ');
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+const response = await fetch('https://script.google.com/macros/s/AKfycbxFRgoTf77yH9_YLoPBhVERePukFm-S_FC6nQou70OzBgJmSBRriVBfj9tGOOZ4lfxO/exec', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: `Ketogén diéta asszisztens vagy. Fontos szabályok:
-1. Laktózmentes, gluténmentes étrend!
-2. Preferencia: 1.mangalica 2.hal(lazac TILOS!) 3.csirkemáj(max heti 1x)
-3. KRITIKUS: Ha a felhasználó "sertés" előtaggal mond be valamit (pl. "sertés comb", "sertés tarja"), akkor KÖTELEZŐ a pontos sertés változatot visszaadni, NEM a mangalica változatot! A "sertés comb" az "sertés comb", nem "mangalica comb"!
-4. Azonosítsd az élelmiszert PONTOSAN a bemondott név alapján.
-5. A mennyiséget grammban add meg. Ha darabszámot mondanak (pl. "2 tojás"), számítsd át: 1 tojás = 60g.
-6. Ha a szám furcsán hangzik (pl. 1050 helyett 150 lehet), értelmezd a logikus étkezési mennyiséget.
-Ismert élelmiszerek: ${foodList}.
-Válaszolj CSAK JSON-ban: {"nev":"élelmiszer neve magyarul pontosan","gram":szám,"kcal_100g":szám,"p_100g":szám,"zs_100g":szám,"ch_100g":szám,"uj_elem":true/false,"figyelmeztetes":"ha van probléma vagy null"}`,
-        messages: [{ role: 'user', content: `Elemezd: "${text}"` }]
-      })
-    });
-    const data = await response.json();
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ text: text, foodList: foodList })
+    });   const data = await response.json();
     const raw = data.content[0].text.replace(/```json|```/g,'').trim();
     const result = JSON.parse(raw);
     document.getElementById('thinkingBox').classList.remove('show');
