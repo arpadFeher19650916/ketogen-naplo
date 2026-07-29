@@ -113,6 +113,12 @@
 </style>
 </head>
 <body>
+<div id="authOverlay" style="position:fixed;inset:0;background:#0f0f1a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-size:22px;font-weight:700;color:#f1f0ff;">🥑 Ketogén Napló</div>
+  <button onclick="firebaseSignIn()" style="display:flex;align-items:center;gap:10px;padding:14px 28px;font-size:16px;font-weight:600;border-radius:10px;border:none;background:#fff;color:#3c4043;cursor:pointer;">
+    <img src="https://www.google.com/favicon.ico" alt="G" style="width:20px;height:20px;"> Bejelentkezés Google-fiókkal
+  </button>
+</div>
 <div class="header">
   <div class="header-top">
     <div class="logo">⚡ Ketogén Napló</div>
@@ -207,7 +213,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, push, remove, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 const firebaseConfig = {
   apiKey: "AIzaSyAq-ZiJldz-tvqdx0HU0L1SwKvWB0UM6Uw",
   authDomain: "keto-944f5.firebaseapp.com",
@@ -224,8 +230,15 @@ const SCOPES = "https://www.googleapis.com/auth/spreadsheets https://www.googlea
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
-signInAnonymously(auth).catch(function(error) {
-  console.error('Firebase anonim bejelentkezes hiba:', error);
+const googleProvider = new GoogleAuthProvider();
+window.firebaseSignIn = function() {
+  signInWithPopup(auth, googleProvider).catch(function(error) {
+    console.error('Firebase Google bejelentkezes hiba:', error);
+  });
+};
+onAuthStateChanged(auth, function(user) {
+  var overlay = document.getElementById('authOverlay');
+  if (overlay) overlay.style.display = user ? 'none' : 'flex';
 });
 const TARGETS = { kcal: 1700, p: 120, zs: 122, ch: 30 };
 
